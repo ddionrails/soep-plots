@@ -1,8 +1,9 @@
 library(ggplot2)
+library(methods)
 
-NumericPlot <- setRefClass(
+numeric_plot <- setRefClass(
     "NumericPlot",
-    fields = list(fields = "vector", data = "data.frame"),
+    fields = list(fields = "list", data = "data.frame"),
     methods = list(
         initialize = function(..., fields = list(), data = data.frame()) {
             fields <<- fields
@@ -12,11 +13,11 @@ NumericPlot <- setRefClass(
             plot_data <- .self$data
             if (length(group) == 0) {
                 group <- ""
-                out <- ggplot(
+                plot <- ggplot(
                     plot_data, aes(x = !!sym(x), y = !!sym(y), group = "")
                 )
             } else {
-                out <- ggplot(
+                plot <- ggplot(
                     plot_data,
                     aes(
                         x = !!sym(x),
@@ -26,7 +27,7 @@ NumericPlot <- setRefClass(
                     )
                 )
             }
-            out <- out +
+            plot <- plot +
                 geom_line() +
                 expand_limits(y = 0) +
                 scale_x_discrete(breaks = plot_data[[x]]) +
@@ -43,7 +44,7 @@ NumericPlot <- setRefClass(
                 xlab(.self$fields[[x]][["label"]])
 
 
-            return(out)
+            return(plot)
         }
     )
 )

@@ -37,7 +37,7 @@ expect_plots_equal <- function(expected, result) {
 
 # Tests
 test_that("NumericPlot Object initialization", {
-  numeric_plot <- unnamed.shiny.project::NumericPlot(
+  numeric_plot <- unnamed.shiny.project::numeric_plot(
     fields = fields,
     data = input_table
   )
@@ -50,7 +50,7 @@ test_that("NumericPlot Object initialization", {
 
 
 test_that("NumericPlot plotting.", {
-  numeric_plot <- unnamed.shiny.project::NumericPlot(
+  numeric_plot <- unnamed.shiny.project::numeric_plot(
     fields = fields,
     data = input_table
   )
@@ -85,7 +85,7 @@ test_that("NumericPlot plotting.", {
   groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
   input_table <- data.frame(years, meanincome, groups)
 
-  numeric_plot <- unnamed.shiny.project::NumericPlot(
+  numeric_plot <- unnamed.shiny.project::numeric_plot(
     fields = fields_,
     data = input_table
   )
@@ -110,7 +110,6 @@ test_that("NumericPlot plotting.", {
   result <- numeric_plot$plot(
     x = "years", y = "meanincome", group = c("groups")
   )
-  print(result)
 
   expect_plots_equal(plot, result)
 })
