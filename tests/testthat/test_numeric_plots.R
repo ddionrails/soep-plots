@@ -69,9 +69,11 @@ test_that("NumericPlot plotting.", {
       legend.title = element_blank()
     ) +
     ylab("Mean Income") +
-    xlab("Year")
+    xlab("Years")
 
   result <- numeric_plot$plot(x = "years", y = "meanincome", group = c())
+
+  expect_plots_equal(plot, result)
 
 
   fields_ <- list(
