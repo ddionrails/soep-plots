@@ -9,6 +9,11 @@ numeric_plot <- setRefClass(
             fields <<- fields
             data <<- data
         },
+        #' Put together a numerical plot
+        #'
+        #' @param x column name from data to be plotted on the x axis
+        #' @param y column name from data to be plotted on the y axis
+        #' @param group vector of category column names
         plot = function(..., x = "year", y = "number", group = c()) {
             plot_data <- .self$data
             if (length(group) == 0) {
