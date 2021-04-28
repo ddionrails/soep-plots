@@ -1,0 +1,25 @@
+Package: unnamed.shiny.project
+Title: Process Data for Visualization in Shiny Server.
+Version: 0.0.1
+Authors@R: 
+    person(given = "Dominique",
+           family = "Hansen",
+           role = c("aut", "cre"),
+           email = "dhansen@diw.de",
+           )
+Description: Process Data for Visualization in Shiny Server.
+License: BSD-3-Clause
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports:
+    ggplot2,
+    plotly,
+    rjson,
+    shiny
+Suggests:
+    testthat (>= 3.0.0),
+    styler,
+    lintr,
+    magick
