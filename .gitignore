@@ -1,2 +1,4 @@
-.R*
+.RData
+.Rhistory
+.Rproj.user
 renv/
