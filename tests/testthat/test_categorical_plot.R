@@ -61,7 +61,7 @@ test_that("CategoricalPlot plotting.", {
         data = input_table
     )
 
-    result <- categorical_plot$plot(x = "year", y = "meanincome", group = c())
+    result <- categorical_plot$plot(x = "years", y = "meanincome", group = c())
 
 
     fields_ <- list(
