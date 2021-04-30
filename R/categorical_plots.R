@@ -1,14 +1,14 @@
+#' @include plots.R
+
 library(ggplot2)
 library(methods)
 
+
+#' @export
 categorical_plot <- setRefClass(
     "CategoricalPlot",
-    fields = list(fields = "list", data = "data.frame"),
+    contains = "GeneralPlot",
     methods = list(
-        initialize = function(..., fields = list(), data = data.frame()) {
-            fields <<- fields
-            data <<- data
-        },
         plot = function(..., x_axis, y_axis, group_by, type) {
             if (type == "line") {
                 type_function <- geom_line

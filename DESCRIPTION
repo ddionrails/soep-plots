@@ -17,10 +17,15 @@ Imports:
     ggplot2,
     plotly,
     rjson,
-    shiny
+    shiny,
+    unnamed.shiny.project
 Suggests:
     testthat (>= 3.0.0),
     styler,
     lintr,
     magick,
     languageserver
+Collate: 
+    'plots.R'
+    'categorical_plots.R'
+    'numeric_plots.R'

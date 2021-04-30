@@ -1,14 +1,12 @@
+#' @include plots.R
 library(ggplot2)
 library(methods)
 
+#' @export
 numeric_plot <- setRefClass(
     "NumericPlot",
-    fields = list(fields = "list", data = "data.frame"),
+    contains = "GeneralPlot",
     methods = list(
-        initialize = function(..., fields = list(), data = data.frame()) {
-            fields <<- fields
-            data <<- data
-        },
         #' Put together a numerical plot
         #'
         #' @param x column name from data to be plotted on the x axis
