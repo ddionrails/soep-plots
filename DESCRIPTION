@@ -22,4 +22,5 @@ Suggests:
     testthat (>= 3.0.0),
     styler,
     lintr,
-    magick
+    magick,
+    languageserver
