@@ -1,0 +1,39 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "testthat",
+            "group": "test",
+            "type": "shell",
+            "command": "/usr/lib/R/bin/Rscript",
+            "args": [
+                "-e",
+                "'devtools::test()'"
+            ]
+        },
+        {
+            "label": "roxygen",
+            "group": "build",
+            "type": "shell",
+            "command": "/usr/lib/R/bin/Rscript",
+            "args": [
+                "-e",
+                "'roxygen2::roxygenise()'"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "document",
+            "group": "build",
+            "type": "shell",
+            "command": "/usr/lib/R/bin/Rscript",
+            "args": [
+                "-e",
+                "'devtools::document()'"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
