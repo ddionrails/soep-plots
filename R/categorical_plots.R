@@ -1,15 +1,24 @@
 #' @include plots.R
 
 library(ggplot2)
-library(methods)
 
 
-#' @export
+#' @exportClass CategoricalPlot
+#' @title CategoricalPlot
+#' @description Handle Configuration and output of a categorical variable plot
 categorical_plot <- setRefClass(
     "CategoricalPlot",
     contains = "GeneralPlot",
     methods = list(
         plot = function(..., x_axis, y_axis, group_by, type) {
+            "Prepare ggplot output for the plot
+
+            @description
+            Create a line or bar plot from objects data and fields metadata.
+            @param x_axis column name from data to be plotted on the x axis
+            @param y_axis column name from data to be plotted on the y axis
+            @param group_by vector of category column names
+            @param type determies plot type; either 'line' or 'bar'"
             if (type == "line") {
                 type_function <- geom_line
             } else {

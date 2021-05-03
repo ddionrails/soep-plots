@@ -71,7 +71,9 @@ test_that("NumericPlot plotting.", {
     ylab("Mean Income") +
     xlab("Years")
 
-  result <- numeric_plot$plot(x = "years", y = "meanincome", group = c())
+  result <- numeric_plot$plot(
+    x_axis = "years", y_axis = "meanincome", group_by = c()
+  )
 
   expect_plots_equal(plot, result)
 
@@ -110,7 +112,7 @@ test_that("NumericPlot plotting.", {
     xlab("Survey Year")
 
   result <- numeric_plot$plot(
-    x = "years", y = "meanincome", group = c("groups")
+    x_axis = "years", y_axis = "meanincome", group_by = c("groups")
   )
 
   expect_plots_equal(plot, result)

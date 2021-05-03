@@ -1,5 +1,5 @@
-library(methods)
 
+#' @title Superclass to define plot object initialization
 general_plot <- setRefClass(
     "GeneralPlot",
     fields = list(fields = "list", data = "data.frame"),
