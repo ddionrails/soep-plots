@@ -1,0 +1,17 @@
+repos:
+  - repo: local
+    hooks:
+      - id: unittest
+        name: run unittests
+        entry: /usr/bin/Rscript
+        args: ["-e", "devtools::test()"]
+        language: system
+        files: '.*\.R'
+        pass_filenames: false
+      - id: document
+        name: Use roxygen to document the package
+        entry: /usr/bin/Rscript
+        args: ["-e", "devtools::document()"]
+        language: system
+        files: '.*\.Rd?'
+        pass_filenames: false
