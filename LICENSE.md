@@ -1,6 +1,6 @@
 # The 3-Clause BSD License
 
-Copyright (c) 2021 unnamed.shiny.project authors
+Copyright (c) 2021 soep.plots authors
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

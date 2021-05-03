@@ -1,4 +1,4 @@
-Package: unnamed.shiny.project
+Package: soep.plots
 Title: Process Data for Visualization in Shiny Server.
 Version: 0.0.1
 Authors@R: 
@@ -18,7 +18,7 @@ Imports:
     plotly,
     rjson,
     shiny,
-    unnamed.shiny.project
+    soep.plots
 Suggests:
     testthat (>= 3.0.0),
     styler,

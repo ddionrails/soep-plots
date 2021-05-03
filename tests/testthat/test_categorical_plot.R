@@ -1,7 +1,7 @@
 library(ggplot2)
 library(testthat)
 
-library(unnamed.shiny.project)
+library(soep.plots)
 
 # Set up
 fields <- list(
@@ -44,7 +44,7 @@ expect_plots_equal <- function(expected, result) {
 
 # Tests
 test_that("CategoricalPlot Object initialization", {
-    categorical_plot <- unnamed.shiny.project::categorical_plot(
+    categorical_plot <- soep.plots::categorical_plot(
         fields = fields,
         data = input_table
     )
@@ -57,7 +57,7 @@ test_that("CategoricalPlot Object initialization", {
 
 
 test_that("CategoricalPlot plotting.", {
-    categorical_plot <- unnamed.shiny.project::categorical_plot(
+    categorical_plot <- soep.plots::categorical_plot(
         fields = fields,
         data = input_table
     )
@@ -107,7 +107,7 @@ test_that("CategoricalPlot plotting.", {
 #     groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
 #     input_table <- data.frame(years, meanincome, groups)
 
-#     categorical_plot <- unnamed.shiny.project::NumericPlot(
+#     categorical_plot <- soep.plots::NumericPlot(
 #         fields = fields_,
 #         data = input_table
 #     )

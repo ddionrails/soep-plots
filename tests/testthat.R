@@ -1,4 +1,4 @@
 library(testthat)
-library(unnamed.shiny.project)
+library(soep.plots)
 
-test_check("unnamed.shiny.project")
+test_check("soep.plots")

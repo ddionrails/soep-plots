@@ -1,7 +1,7 @@
 library(ggplot2)
 library(testthat)
 
-library(unnamed.shiny.project)
+library(soep.plots)
 
 # Set up
 fields <- list(
@@ -37,7 +37,7 @@ expect_plots_equal <- function(expected, result) {
 
 # Tests
 test_that("NumericPlot Object initialization", {
-  numeric_plot <- unnamed.shiny.project::numeric_plot(
+  numeric_plot <- soep.plots::numeric_plot(
     fields = fields,
     data = input_table
   )
@@ -50,7 +50,7 @@ test_that("NumericPlot Object initialization", {
 
 
 test_that("NumericPlot plotting.", {
-  numeric_plot <- unnamed.shiny.project::numeric_plot(
+  numeric_plot <- soep.plots::numeric_plot(
     fields = fields,
     data = input_table
   )
@@ -89,7 +89,7 @@ test_that("NumericPlot plotting.", {
   groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
   input_table <- data.frame(years, meanincome, groups)
 
-  numeric_plot <- unnamed.shiny.project::numeric_plot(
+  numeric_plot <- soep.plots::numeric_plot(
     fields = fields_,
     data = input_table
   )
