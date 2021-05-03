@@ -1,4 +1,4 @@
-
+#' @import methods
 #' @title Superclass to define plot object initialization
 general_plot <- setRefClass(
     "GeneralPlot",
