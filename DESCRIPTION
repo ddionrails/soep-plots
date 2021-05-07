@@ -17,8 +17,7 @@ Imports:
     ggplot2,
     plotly,
     rjson,
-    shiny,
-    soep.plots
+    shiny
 Suggests:
     testthat (>= 3.0.0),
     styler,

@@ -19,16 +19,15 @@ numeric_plot <- setRefClass(
             @param x column name from data to be plotted on the x axis
             @param y column name from data to be plotted on the y axis
             @param group vector of category column names"
-            plot_data <- .self$data
             if (length(group_by) == 0) {
                 group <- ""
                 plot <- ggplot(
-                    plot_data,
+                    .self$data,
                     aes(x = !!sym(x_axis), y = !!sym(y_axis), group = "")
                 )
             } else {
                 plot <- ggplot(
-                    plot_data,
+                    .self$data,
                     aes(
                         x = !!sym(x_axis),
                         y = !!sym(y_axis),
@@ -40,9 +39,9 @@ numeric_plot <- setRefClass(
             plot <- plot +
                 geom_line() +
                 expand_limits(y = 0) +
-                scale_x_discrete(breaks = plot_data[[x_axis]]) +
+                scale_x_discrete(breaks = .self$data[[x_axis]]) +
                 scale_y_continuous(
-                    breaks = seq(0, max(plot_data[[y_axis]]), by = 500)
+                    breaks = seq(0, max(.self$data[[y_axis]]), by = 500)
                 ) +
                 theme(
                     axis.text = element_text(size = 12),
@@ -51,7 +50,14 @@ numeric_plot <- setRefClass(
                     legend.title = element_blank()
                 ) +
                 ylab(.self$fields[[y_axis]][["label"]]) +
-                xlab(.self$fields[[x_axis]][["label"]])
+                xlab(.self$fields[[x_axis]][["label"]]) +
+                geom_ribbon(
+                    aes_string(
+                        ymin = "lower_confidence",
+                        ymax = "upper_confidence"
+                    ),
+                    linetype = 2, alpha = .1
+                )
 
 
             return(plot)

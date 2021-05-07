@@ -10,7 +10,9 @@ fields <- list(
 )
 years <- as.factor(c("2000", "2001", "2002", "2003"))
 meanincome <- c(1000, 2000, 3000, 1500)
-input_table <- data.frame(years, meanincome)
+upper_confidence <- c(1100, 2100, 3200, 1600)
+lower_confidence <- c(900, 1800, 2900, 1000)
+input_table <- data.frame(years, meanincome, lower_confidence, upper_confidence)
 
 #' Saves plots to image files and compares their file hashes.
 #'
@@ -69,15 +71,22 @@ test_that("NumericPlot plotting.", {
       legend.title = element_blank()
     ) +
     ylab("Mean Income") +
-    xlab("Years")
+    xlab("Years") +
+    geom_ribbon(
+      aes(
+        ymin = lower_confidence, ymax = upper_confidence
+      ),
+      linetype = 2, alpha = .1
+    )
 
   result <- numeric_plot$plot(
     x_axis = "years", y_axis = "meanincome", group_by = c()
   )
 
   expect_plots_equal(plot, result)
+})
 
-
+test_that("Test grouping", {
   fields_ <- list(
     "years" = list("label" = "Survey Year"),
     "meanincome" = list("label" = "Mean Income")
@@ -87,21 +96,23 @@ test_that("NumericPlot plotting.", {
   years <- as.factor(c("2000", "2001", "2002", "2003", "2000", "2001", "2002", "2003"))
   meanincome <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
   groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
-  input_table <- data.frame(years, meanincome, groups)
+  upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  lower_confidence <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  group_input_table <- data.frame(years, meanincome, groups, lower_confidence, upper_confidence)
 
   numeric_plot <- soep.plots::numeric_plot(
     fields = fields_,
-    data = input_table
+    data = group_input_table
   )
 
   plot <- ggplot(
-    input_table,
+    group_input_table,
     aes(x = years, y = meanincome, group = groups, color = groups)
   ) +
     geom_line() +
     expand_limits(y = 0) +
-    scale_x_discrete(breaks = input_table$years) +
-    scale_y_continuous(breaks = seq(0, max(input_table$meanincome), by = 500)) +
+    scale_x_discrete(breaks = group_input_table$years) +
+    scale_y_continuous(breaks = seq(0, max(group_input_table$meanincome), by = 500)) +
     theme(
       axis.text = element_text(size = 12),
       axis.title = element_text(size = 14, face = "bold"),
@@ -109,11 +120,17 @@ test_that("NumericPlot plotting.", {
       legend.title = element_blank()
     ) +
     ylab("Mean Income") +
-    xlab("Survey Year")
+    xlab("Survey Year") +
+    geom_ribbon(
+      aes_string(
+        ymin = "lower_confidence",
+        ymax = "upper_confidence"
+      ),
+      linetype = 2, alpha = .1
+    )
 
   result <- numeric_plot$plot(
     x_axis = "years", y_axis = "meanincome", group_by = c("groups")
   )
-
   expect_plots_equal(plot, result)
 })
