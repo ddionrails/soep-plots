@@ -8,6 +8,12 @@ general_plot <- setRefClass(
         confidence_interval = "logical"
     ),
     methods = list(
+        disable_confidence_interval = function(...) {
+            .self$confidence_interval <- FALSE
+        },
+        enable_confidence_interval = function(...) {
+            .self$confidence_interval <- TRUE
+        },
         initialize = function(..., fields = list(), data = data.frame()) {
             fields <<- fields
             data <<- data

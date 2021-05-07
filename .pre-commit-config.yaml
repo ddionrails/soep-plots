@@ -1,7 +1,7 @@
 repos:
   - repo: local
     hooks:
-      - id: lint
+      - id: lintr
         name: run lintr
         entry: /usr/bin/Rscript
         args: ["-e", "lintr::lint_package()"]

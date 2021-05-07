@@ -3,14 +3,11 @@ library(ggplot2)
 
 #' @exportClass NumericPlot
 #' @title NumericPlot
-#' @description Handle Configuration and output of a numeric variable plot
+#' @description Handle Configuration and output of a numeric variable plot        df
 numeric_plot <- setRefClass(
     "NumericPlot",
     contains = "GeneralPlot",
     methods = list(
-        disable_confidence_interval = function(...) {
-            .self$confidence_interval <- FALSE
-        },
         plot = function(...,
                         x_axis = "year",
                         y_axis = "number",
