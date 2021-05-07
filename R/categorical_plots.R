@@ -51,7 +51,7 @@ categorical_plot <- setRefClass(
                 ) +
                 labs(fill = "") +
                 geom_ribbon(
-                    aes(ymin = lower, ymax = upper),
+                    aes(ymin = lower_confidence, ymax = upper_confidence),
                     linetype = 2,
                     alpha = .1
                 )

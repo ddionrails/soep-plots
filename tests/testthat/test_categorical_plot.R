@@ -14,9 +14,9 @@ years <- as.factor(
 )
 category <- c("a", "b", "a", "b", "a", "b", "a", "b")
 proportion <- c(.1, .9, .6, .4, .1, .9, .6, .4)
-lower <- c(.09, .88, .59, .37, .09, .85, .54, .31)
-upper <- c(.11, .92, .63, .42, .11, .92, .61, .44)
-input_table <- data.frame(years, category, proportion, lower, upper)
+lower_confidence <- c(.09, .88, .59, .37, .09, .85, .54, .31)
+upper_confidence <- c(.11, .92, .63, .42, .11, .92, .61, .44)
+input_table <- data.frame(years, category, proportion, lower_confidence, upper_confidence)
 
 #' Saves plots to image files and compares their file hashes.
 #'
@@ -97,7 +97,7 @@ test_that("CategoricalPlot plotting.", {
             legend.text = element_text(size = 12)
         ) +
         labs(fill = "") +
-        geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 2, alpha = .1)
+        geom_ribbon(aes(ymin = lower_confidence, ymax = upper_confidence), linetype = 2, alpha = .1)
     expect_plots_equal(plot, result)
 })
 
