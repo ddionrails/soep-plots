@@ -16,7 +16,13 @@ category <- c("a", "b", "a", "b", "a", "b", "a", "b")
 proportion <- c(.1, .9, .6, .4, .1, .9, .6, .4)
 lower_confidence <- c(.09, .88, .59, .37, .09, .85, .54, .31)
 upper_confidence <- c(.11, .92, .63, .42, .11, .92, .61, .44)
-input_table <- data.frame(years, category, proportion, lower_confidence, upper_confidence)
+input_table <- data.frame(
+    years,
+    category,
+    proportion,
+    lower_confidence,
+    upper_confidence
+)
 
 #' Saves plots to image files and compares their file hashes.
 #'
@@ -97,41 +103,10 @@ test_that("CategoricalPlot plotting.", {
             legend.text = element_text(size = 12)
         ) +
         labs(fill = "") +
-        geom_ribbon(aes(ymin = lower_confidence, ymax = upper_confidence), linetype = 2, alpha = .1)
+        geom_ribbon(
+            aes(ymin = lower_confidence, ymax = upper_confidence),
+            linetype = 2,
+            alpha = .1
+        )
     expect_plots_equal(plot, result)
 })
-
-#     # Test variability
-#     years <- as.factor(c("2000", "2001", "2002", "2003", "2000", "2001", "2002", "2003"))
-#     meanincome <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
-#     groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
-#     input_table <- data.frame(years, meanincome, groups)
-
-#     categorical_plot <- soep.plots::NumericPlot(
-#         fields = fields_,
-#         data = input_table
-#     )
-
-#     plot <- ggplot(
-#         input_table,
-#         aes(x = years, y = meanincome, group = groups, color = groups)
-#     ) +
-#         geom_line() +
-#         expand_limits(y = 0) +
-#         scale_x_discrete(breaks = input_table$years) +
-#         scale_y_continuous(breaks = seq(0, max(input_table$meanincome), by = 500)) +
-#         theme(
-#             axis.text = element_text(size = 12),
-#             axis.title = element_text(size = 14, face = "bold"),
-#             legend.text = element_text(size = 12),
-#             legend.title = element_blank()
-#         ) +
-#         ylab("Mean Income") +
-#         xlab("Survey Year")
-
-#     result <- categorical_plot$plot(
-#         x = "years", y = "meanincome", group = c("groups")
-#     )
-
-#     expect_plots_equal(plot, result)
-# })
