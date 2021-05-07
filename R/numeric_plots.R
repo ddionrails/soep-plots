@@ -8,6 +8,9 @@ numeric_plot <- setRefClass(
     "NumericPlot",
     contains = "GeneralPlot",
     methods = list(
+        disable_confidence_interval = function(...) {
+            .self$confidence_interval <- FALSE
+        },
         plot = function(...,
                         x_axis = "year",
                         y_axis = "number",
@@ -50,14 +53,17 @@ numeric_plot <- setRefClass(
                     legend.title = element_blank()
                 ) +
                 ylab(.self$fields[[y_axis]][["label"]]) +
-                xlab(.self$fields[[x_axis]][["label"]]) +
-                geom_ribbon(
-                    aes_string(
-                        ymin = "lower_confidence",
-                        ymax = "upper_confidence"
-                    ),
-                    linetype = 2, alpha = .1
-                )
+                xlab(.self$fields[[x_axis]][["label"]])
+            if (.self$confidence_interval) {
+                plot <- plot +
+                    geom_ribbon(
+                        aes_string(
+                            ymin = "lower_confidence",
+                            ymax = "upper_confidence"
+                        ),
+                        linetype = 2, alpha = .1
+                    )
+            }
 
 
             return(plot)

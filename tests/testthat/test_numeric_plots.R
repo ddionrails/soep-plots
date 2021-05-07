@@ -92,7 +92,6 @@ test_that("Test grouping", {
     "meanincome" = list("label" = "Mean Income")
   )
 
-  # Test variability
   years <- as.factor(c("2000", "2001", "2002", "2003", "2000", "2001", "2002", "2003"))
   meanincome <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
   groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
@@ -130,6 +129,86 @@ test_that("Test grouping", {
     )
 
   result <- numeric_plot$plot(
+    x_axis = "years", y_axis = "meanincome", group_by = c("groups")
+  )
+  expect_plots_equal(plot, result)
+})
+
+
+
+test_that("Test confidence interval", {
+  fields_ <- list(
+    "years" = list("label" = "Survey Year"),
+    "meanincome" = list("label" = "Mean Income")
+  )
+
+  years <- as.factor(c(
+    "2000",
+    "2001",
+    "2002",
+    "2003",
+    "2000",
+    "2001",
+    "2002",
+    "2003"
+  ))
+  meanincome <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
+  groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
+  upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  lower_confidence <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  ci_input_table <- data.frame(
+    years,
+    meanincome,
+    groups,
+    lower_confidence,
+    upper_confidence
+  )
+
+  result_plot <- soep.plots::numeric_plot(
+    fields = fields_,
+    data = ci_input_table
+  )
+
+  plot <- ggplot(
+    ci_input_table,
+    aes(x = years, y = meanincome, group = groups, color = groups)
+  ) +
+    geom_line() +
+    expand_limits(y = 0) +
+    scale_x_discrete(breaks = ci_input_table$years) +
+    scale_y_continuous(
+      breaks = seq(
+        0,
+        max(ci_input_table$meanincome),
+        by = 500
+      )
+    ) +
+    theme(
+      axis.text = element_text(size = 12),
+      axis.title = element_text(size = 14, face = "bold"),
+      legend.text = element_text(size = 12),
+      legend.title = element_blank()
+    ) +
+    ylab("Mean Income") +
+    xlab("Survey Year")
+
+  ci_plot <- plot +
+    geom_ribbon(
+      aes_string(
+        ymin = "lower_confidence",
+        ymax = "upper_confidence"
+      ),
+      linetype = 2, alpha = .1
+    )
+
+  result <- result_plot$plot(
+    x_axis = "years", y_axis = "meanincome", group_by = c("groups")
+  )
+  expect_plots_equal(ci_plot, result)
+
+  # Without CI
+  result_plot$disable_confidence_interval()
+  result <- result_plot$plot(
     x_axis = "years", y_axis = "meanincome", group_by = c("groups")
   )
   expect_plots_equal(plot, result)
