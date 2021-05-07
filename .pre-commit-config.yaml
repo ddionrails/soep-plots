@@ -1,6 +1,12 @@
 repos:
   - repo: local
     hooks:
+      - id: lint
+        name: run lintr
+        entry: /usr/bin/Rscript
+        args: ["-e", "lintr::lint_package()"]
+        language: system
+        files: '.*\.R'
       - id: unittest
         name: run unittests
         entry: /usr/bin/Rscript

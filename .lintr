@@ -1,0 +1,5 @@
+error_on_lint: TRUE
+linters: with_defaults(
+  line_length_linter(90), 
+  commented_code_linter = NULL
+  )
