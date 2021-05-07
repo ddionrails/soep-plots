@@ -23,7 +23,9 @@ Suggests:
     styler,
     lintr,
     magick,
-    languageserver
+    languageserver,
+    covr,
+    devtools
 Collate: 
     'plots.R'
     'categorical_plots.R'

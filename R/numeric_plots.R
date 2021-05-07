@@ -1,6 +1,7 @@
 #' @include plots.R
 library(ggplot2)
 
+#' @export numeric_plot
 #' @exportClass NumericPlot
 #' @title NumericPlot
 #' @description Handle Configuration and output of a numeric variable plot        df

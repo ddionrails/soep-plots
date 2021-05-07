@@ -2,7 +2,7 @@
 
 library(ggplot2)
 
-
+#' @export  categorical_plot
 #' @exportClass CategoricalPlot
 #' @title CategoricalPlot
 #' @description Handle Configuration and output of a categorical variable plot
