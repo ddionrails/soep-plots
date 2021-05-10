@@ -20,20 +20,29 @@ categorical_plot <- setRefClass(
             @param group_by vector of category column names
             @param type determies plot type; either 'line' or 'bar'"
             if (type == "line") {
-                type_function <- geom_line
-            } else {
-                type_function <- geom_bar
+                output_plot <- ggplot(
+                    .self$data,
+                    aes(
+                        x = !!sym(x_axis),
+                        y = !!sym(y_axis),
+                        group = !!sym(group_by),
+                        color = !!sym(group_by)
+                    )
+                ) +
+                    geom_line()
+            } else if (type == "bar") {
+                output_plot <- ggplot(
+                    .self$data,
+                    aes(
+                        x = !!sym(x_axis),
+                        y = !!sym(y_axis),
+                        fill = !!sym(group_by)
+                    )
+                ) +
+                    geom_bar(position = "fill", stat = "identity")
             }
-            output_plot <- ggplot(
-                .self$data,
-                aes(
-                    x = !!sym(x_axis),
-                    y = !!sym(y_axis),
-                    group = !!sym(group_by),
-                    color = !!sym(group_by)
-                )
-            ) +
-                type_function() +
+
+            output_plot <- output_plot +
                 ylab(.self$fields[[y_axis]][["label"]]) +
                 xlab(.self$fields[[x_axis]][["label"]]) +
                 scale_x_discrete(breaks = unique(.self$data[[x_axis]])) +

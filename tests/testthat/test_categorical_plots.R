@@ -109,4 +109,34 @@ test_that("CategoricalPlot plotting.", {
             alpha = .1
         )
     expect_plots_equal(plot, result)
+
+    plot_bar <- ggplot(
+        input_table, aes(
+            y = proportion, x = years, fill = category
+        )
+    ) +
+        geom_bar(position = "fill", stat = "identity") +
+        ylab("Proportion") +
+        xlab("Years") +
+        scale_x_discrete(breaks = unique(input_table$year)) +
+        scale_y_continuous(
+            breaks = seq(0, 1, by = .1),
+            labels = sapply(
+                c(seq(0, 100, 10)),
+                function(x) paste(x, "%", sep = "")
+            )
+        ) +
+        theme(
+            axis.text = element_text(size = 12),
+            axis.title = element_text(size = 14, face = "bold"),
+            legend.text = element_text(size = 12)
+        ) +
+        labs(fill = "")
+    result_bar <- categorical_plot$plot(
+        x_axis = "years",
+        y_axis = "proportion",
+        group_by = "category",
+        type = "bar"
+    )
+    expect_plots_equal(plot_bar, result_bar)
 })
