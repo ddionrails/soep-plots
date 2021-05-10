@@ -1,6 +1,6 @@
 FROM r-base:4.0.5
 
-ENV APP_DIRECTORY /opt/soep-plot
+ENV APP_DIRECTORY /opt/soep-plots
 RUN mkdir ${APP_DIRECTORY}}
 
 COPY ./ ${APP_DIRECTORY}
