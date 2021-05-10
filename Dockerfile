@@ -13,6 +13,7 @@ RUN apt-get update -y \
     libcurl4-openssl-dev \
     libmagick++-dev \
     libssl-dev \
+    git \
     && Rscript -e 'install.packages("remotes")' \
     && Rscript -e 'remotes::install_github("rstudio/renv")' \
     && Rscript -e "renv::install()" \
