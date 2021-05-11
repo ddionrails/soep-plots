@@ -5,7 +5,8 @@ general_plot <- setRefClass(
     fields = list(
         fields = "list",
         data = "data.frame",
-        confidence_interval = "logical"
+        confidence_interval = "logical",
+        type = "character"
     ),
     methods = list(
         disable_confidence_interval = function(...) {
@@ -18,6 +19,7 @@ general_plot <- setRefClass(
             fields <<- fields
             data <<- data
             confidence_interval <<- TRUE
+            type <<- "line"
         }
     )
 )

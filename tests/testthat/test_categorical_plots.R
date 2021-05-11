@@ -71,8 +71,7 @@ test_that("CategoricalPlot plotting.", {
     result <- categorical_plot$plot(
         x_axis = "years",
         y_axis = "proportion",
-        group_by = "category",
-        type = "line"
+        group_by = "category"
     )
 
 
@@ -132,11 +131,22 @@ test_that("CategoricalPlot plotting.", {
             legend.text = element_text(size = 12)
         ) +
         labs(fill = "")
-    result_bar <- categorical_plot$plot(
+    categorical_plot$set_to_bar()
+
+
+    result <- categorical_plot$plot(
         x_axis = "years",
         y_axis = "proportion",
-        group_by = "category",
-        type = "bar"
+        group_by = "category"
     )
-    expect_plots_equal(plot_bar, result_bar)
+    expect_plots_equal(plot_bar, result)
+
+    categorical_plot$set_to_line()
+    result <- categorical_plot$plot(
+        x_axis = "years",
+        y_axis = "proportion",
+        group_by = "category"
+    )
+
+    expect_plots_equal(plot, result)
 })

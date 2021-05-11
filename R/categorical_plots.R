@@ -10,7 +10,15 @@ categorical_plot <- setRefClass(
     "CategoricalPlot",
     contains = "GeneralPlot",
     methods = list(
-        plot = function(..., x_axis, y_axis, group_by, type) {
+        set_to_bar = function(...) {
+            "Set type of plot returned to a barchart"
+            .self$type <- "bar"
+        },
+        set_to_line = function(...) {
+            "Set type of plot returned to a barchart"
+            .self$type <- "line"
+        },
+        plot = function(..., x_axis, y_axis, group_by) {
             "Prepare ggplot output for the plot
 
             @description
@@ -19,7 +27,7 @@ categorical_plot <- setRefClass(
             @param y_axis column name from data to be plotted on the y axis
             @param group_by vector of category column names
             @param type determies plot type; either 'line' or 'bar'"
-            if (type == "line") {
+            if (.self$type == "line") {
                 output_plot <- ggplot(
                     .self$data,
                     aes(
@@ -30,7 +38,7 @@ categorical_plot <- setRefClass(
                     )
                 ) +
                     geom_line()
-            } else if (type == "bar") {
+            } else if (.self$type == "bar") {
                 output_plot <- ggplot(
                     .self$data,
                     aes(
