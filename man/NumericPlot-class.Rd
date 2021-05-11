@@ -5,18 +5,19 @@
 \alias{NumericPlot-class}
 \alias{numeric_plot}
 \title{NumericPlot}
+\arguments{
+\item{x_axis}{column name from data to be plotted on the x axis}
+
+\item{y_axis}{column name from data to be plotted on the y axis}
+
+\item{group_by}{vector of category column names"}
+}
 \description{
-Handle Configuration and output of a numeric variable plot        df
+Handle Configuration and output of a numeric variable plot
 }
 \section{Methods}{
 
 \describe{
-\item{\code{plot(..., x_axis = "year", y_axis = "number", group_by = c())}}{Put together a numerical plot
-
-            @description
-            Create a line plot from data.
-            @param x column name from data to be plotted on the x axis
-            @param y column name from data to be plotted on the y axis
-            @param group vector of category column names}
+\item{\code{plot(...)}}{Create a numerical plot from data and settings.}
 }}
 

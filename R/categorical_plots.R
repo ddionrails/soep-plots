@@ -6,6 +6,10 @@ library(ggplot2)
 #' @exportClass CategoricalPlot
 #' @title CategoricalPlot
 #' @description Handle Configuration and output of a categorical variable plot
+#' @param x_axis column name from data to be plotted on the x axis
+#' @param y_axis column name from data to be plotted on the y axis
+#' @param group_by vector of category column names
+#' @param type determies plot type; either 'line' or 'bar'
 categorical_plot <- setRefClass(
     "CategoricalPlot",
     contains = "GeneralPlot",
@@ -18,23 +22,16 @@ categorical_plot <- setRefClass(
             "Set type of plot returned to a barchart"
             .self$type <- "line"
         },
-        plot = function(..., x_axis, y_axis, group_by) {
-            "Prepare ggplot output for the plot
-
-            @description
-            Create a line or bar plot from objects data and fields metadata.
-            @param x_axis column name from data to be plotted on the x axis
-            @param y_axis column name from data to be plotted on the y axis
-            @param group_by vector of category column names
-            @param type determies plot type; either 'line' or 'bar'"
+        plot = function(...) {
+            "Prepare ggplot output from data and config."
             if (.self$type == "line") {
                 output_plot <- ggplot(
                     .self$data,
                     aes(
-                        x = !!sym(x_axis),
-                        y = !!sym(y_axis),
-                        group = !!sym(group_by),
-                        color = !!sym(group_by)
+                        x = !!sym(.self$x_axis),
+                        y = !!sym(.self$y_axis),
+                        group = !!sym(.self$group_by),
+                        color = !!sym(.self$group_by)
                     )
                 ) +
                     geom_line()
@@ -42,18 +39,18 @@ categorical_plot <- setRefClass(
                 output_plot <- ggplot(
                     .self$data,
                     aes(
-                        x = !!sym(x_axis),
-                        y = !!sym(y_axis),
-                        fill = !!sym(group_by)
+                        x = !!sym(.self$x_axis),
+                        y = !!sym(.self$y_axis),
+                        fill = !!sym(.self$group_by)
                     )
                 ) +
                     geom_bar(position = "fill", stat = "identity")
             }
 
             output_plot <- output_plot +
-                ylab(.self$fields[[y_axis]][["label"]]) +
-                xlab(.self$fields[[x_axis]][["label"]]) +
-                scale_x_discrete(breaks = unique(.self$data[[x_axis]])) +
+                ylab(.self$fields[[.self$y_axis]][["label"]]) +
+                xlab(.self$fields[[.self$x_axis]][["label"]]) +
+                scale_x_discrete(breaks = unique(.self$data[[.self$x_axis]])) +
                 scale_y_continuous(
                     breaks = seq(0, 1, by = .1),
                     labels = sapply(

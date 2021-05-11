@@ -5,7 +5,16 @@
 \alias{GeneralPlot-class}
 \alias{general_plot}
 \title{Superclass to define plot object initialization}
+\arguments{
+\item{x_axis}{column name from data to be plotted on the x axis}
+
+\item{y_axis}{column name from data to be plotted on the y axis}
+
+\item{group_by}{vector of category column names}
+
+\item{type}{determies plot type; either 'line' or 'bar'}
+}
 \description{
-Superclass to define plot object initialization
+Handle Configuration and output of a categorical variable plot
 }
 

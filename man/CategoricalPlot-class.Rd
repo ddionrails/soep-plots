@@ -5,20 +5,22 @@
 \alias{CategoricalPlot-class}
 \alias{categorical_plot}
 \title{CategoricalPlot}
+\arguments{
+\item{x_axis}{column name from data to be plotted on the x axis}
+
+\item{y_axis}{column name from data to be plotted on the y axis}
+
+\item{group_by}{vector of category column names}
+
+\item{type}{determies plot type; either 'line' or 'bar'}
+}
 \description{
 Handle Configuration and output of a categorical variable plot
 }
 \section{Methods}{
 
 \describe{
-\item{\code{plot(..., x_axis, y_axis, group_by)}}{Prepare ggplot output for the plot
-
-            @description
-            Create a line or bar plot from objects data and fields metadata.
-            @param x_axis column name from data to be plotted on the x axis
-            @param y_axis column name from data to be plotted on the y axis
-            @param group_by vector of category column names
-            @param type determies plot type; either 'line' or 'bar'}
+\item{\code{plot(...)}}{Prepare ggplot output from data and config.}
 
 \item{\code{set_to_bar(...)}}{Set type of plot returned to a barchart}
 

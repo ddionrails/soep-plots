@@ -41,7 +41,10 @@ expect_plots_equal <- function(expected, result) {
 test_that("NumericPlot Object initialization", {
   numeric_plot <- soep.plots::numeric_plot(
     fields = fields,
-    data = input_table
+    data = input_table,
+    x_axis = "years",
+    y_axis = "meanincome",
+    group_by = vector()
   )
   expect_true(inherits(numeric_plot, "NumericPlot"))
   expect_type(numeric_plot$fields, "list")
@@ -54,7 +57,10 @@ test_that("NumericPlot Object initialization", {
 test_that("NumericPlot plotting.", {
   numeric_plot <- soep.plots::numeric_plot(
     fields = fields,
-    data = input_table
+    data = input_table,
+    x_axis = "years",
+    y_axis = "meanincome",
+    group_by = vector()
   )
   plot <- ggplot(
     input_table,
@@ -79,9 +85,7 @@ test_that("NumericPlot plotting.", {
       linetype = 2, alpha = .1
     )
 
-  result <- numeric_plot$plot(
-    x_axis = "years", y_axis = "meanincome", group_by = c()
-  )
+  result <- numeric_plot$plot()
 
   expect_plots_equal(plot, result)
 })
@@ -116,7 +120,10 @@ test_that("Test grouping", {
 
   numeric_plot <- soep.plots::numeric_plot(
     fields = fields_,
-    data = group_input_table
+    data = group_input_table,
+    x_axis = "years",
+    y_axis = "meanincome",
+    group_by = c("groups")
   )
 
   plot <- ggplot(
@@ -145,9 +152,7 @@ test_that("Test grouping", {
       linetype = 2, alpha = .1
     )
 
-  result <- numeric_plot$plot(
-    x_axis = "years", y_axis = "meanincome", group_by = c("groups")
-  )
+  result <- numeric_plot$plot()
   expect_plots_equal(plot, result)
 })
 
@@ -183,7 +188,10 @@ test_that("Test confidence interval", {
 
   result_plot <- soep.plots::numeric_plot(
     fields = fields_,
-    data = ci_input_table
+    data = ci_input_table,
+    x_axis = "years",
+    y_axis = "meanincome",
+    group_by = vector()
   )
 
   plot <- ggplot(
@@ -218,21 +226,16 @@ test_that("Test confidence interval", {
       linetype = 2, alpha = .1
     )
 
-  result <- result_plot$plot(
-    x_axis = "years", y_axis = "meanincome", group_by = c("groups")
-  )
+  result_plot$set_dimensions(group_by = c("groups"))
+  result <- result_plot$plot()
   expect_plots_equal(ci_plot, result)
 
   # Without CI
   result_plot$disable_confidence_interval()
-  result <- result_plot$plot(
-    x_axis = "years", y_axis = "meanincome", group_by = c("groups")
-  )
+  result <- result_plot$plot()
   expect_plots_equal(plot, result)
   # With CI Reenabled
   result_plot$enable_confidence_interval()
-  result <- result_plot$plot(
-    x_axis = "years", y_axis = "meanincome", group_by = c("groups")
-  )
+  result <- result_plot$plot()
   expect_plots_equal(ci_plot, result)
 })

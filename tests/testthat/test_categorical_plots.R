@@ -52,7 +52,10 @@ expect_plots_equal <- function(expected, result) {
 test_that("CategoricalPlot Object initialization", {
     categorical_plot <- soep.plots::categorical_plot(
         fields = fields,
-        data = input_table
+        data = input_table,
+        x_axis = "years",
+        y_axis = "proportion",
+        group_by = c("category")
     )
     expect_true(inherits(categorical_plot, "CategoricalPlot"))
     expect_type(categorical_plot$fields, "list")
@@ -65,14 +68,13 @@ test_that("CategoricalPlot Object initialization", {
 test_that("CategoricalPlot plotting.", {
     categorical_plot <- soep.plots::categorical_plot(
         fields = fields,
-        data = input_table
-    )
-
-    result <- categorical_plot$plot(
+        data = input_table,
         x_axis = "years",
         y_axis = "proportion",
-        group_by = "category"
+        group_by = c("category")
     )
+
+    result <- categorical_plot$plot()
 
 
     fields_ <- list(
@@ -134,19 +136,11 @@ test_that("CategoricalPlot plotting.", {
     categorical_plot$set_to_bar()
 
 
-    result <- categorical_plot$plot(
-        x_axis = "years",
-        y_axis = "proportion",
-        group_by = "category"
-    )
+    result <- categorical_plot$plot()
     expect_plots_equal(plot_bar, result)
 
     categorical_plot$set_to_line()
-    result <- categorical_plot$plot(
-        x_axis = "years",
-        y_axis = "proportion",
-        group_by = "category"
-    )
+    result <- categorical_plot$plot()
 
     expect_plots_equal(plot, result)
 })
