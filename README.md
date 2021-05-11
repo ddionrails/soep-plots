@@ -6,6 +6,7 @@
 <!-- badges: start -->
 
 ![Unit Tests](https://github.com/ddionrails/soep-plots/actions/workflows/unittest.yaml/badge.svg)
+![Test Coverage](https://img.shields.io/codecov/c/github/ddionrails/soep-plots/main)
 ![lintr](https://github.com/ddionrails/soep-plots/actions/workflows/lint.yaml/badge.svg)
 ![Docker Build](https://img.shields.io/docker/cloud/build/paneldata/soep-plots)
 
