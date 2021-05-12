@@ -3,9 +3,11 @@ library(testthat)
 
 library(soep.plots)
 
+source("helpers.R")
+
 # Set up
 fields <- list(
-  "years" = list("label" = "Years"),
+  "years" = list("label" = "Survey Year"),
   "meanincome" = list("label" = "Mean Income")
 )
 years <- as.factor(c("2000", "2001", "2002", "2003"))
@@ -14,55 +16,32 @@ upper_confidence <- c(1100, 2100, 3200, 1600)
 lower_confidence <- c(900, 1800, 2900, 1000)
 input_table <- data.frame(years, meanincome, lower_confidence, upper_confidence)
 
-#' Saves plots to image files and compares their file hashes.
-#'
-#' @param baseline The expected ggplot object to compare result to.
-#' @param compare The ggplot result of a test.
-#' @return The md5 hash of the result file.
-#' @examples
-#' expected <- ggplot(dataframe)
-#' result <- test_function() # Returns a ggplot object.
-#' expected_plots_equal(expected, result)
-expect_plots_equal <- function(expected, result) {
-  expected_file <- "baseline.png"
-  compare_file <- "compare.png"
-  withr::local_file(expected_file)
-  withr::local_file(compare_file)
-  ggplot2::ggsave(filename = expected_file, plot = expected, type = "cairo")
-  ggplot2::ggsave(filename = compare_file, plot = result, type = "cairo")
-  expect(
-    tools::md5sum(files = expected_file) == tools::md5sum(files = compare_file),
-    sprintf("Result Plot does not look like expected plot.")
-  )
-  return(tools::md5sum(files = compare_file))
-}
 
-# Tests
 test_that("NumericPlot Object initialization", {
-  numeric_plot <- soep.plots::numeric_plot(
+  result_plotting_object <- soep.plots::numeric_plot(
     fields = fields,
     data = input_table,
     x_axis = "years",
     y_axis = "meanincome",
     group_by = vector()
   )
-  expect_true(inherits(numeric_plot, "NumericPlot"))
-  expect_type(numeric_plot$fields, "list")
-  expect_identical(fields, numeric_plot$fields)
-  expect_true(is.data.frame(numeric_plot$data))
-  expect_identical(input_table, numeric_plot$data)
+  expect_true(inherits(result_plotting_object, "NumericPlot"))
+  expect_type(result_plotting_object$fields, "list")
+  expect_identical(fields, result_plotting_object$fields)
+  expect_true(is.data.frame(result_plotting_object$data))
+  expect_identical(input_table, result_plotting_object$data)
 })
 
 
 test_that("NumericPlot plotting.", {
-  numeric_plot <- soep.plots::numeric_plot(
+  result_plotting_object <- soep.plots::numeric_plot(
     fields = fields,
     data = input_table,
     x_axis = "years",
     y_axis = "meanincome",
     group_by = vector()
   )
-  plot <- ggplot(
+  expected_plot <- ggplot(
     input_table,
     aes(x = years, y = meanincome, group = "")
   ) +
@@ -77,7 +56,7 @@ test_that("NumericPlot plotting.", {
       legend.title = element_blank()
     ) +
     ylab("Mean Income") +
-    xlab("Years") +
+    xlab("Survey Year") +
     geom_ribbon(
       aes(
         ymin = lower_confidence, ymax = upper_confidence
@@ -85,17 +64,12 @@ test_that("NumericPlot plotting.", {
       linetype = 2, alpha = .1
     )
 
-  result <- numeric_plot$plot()
+  result_plot <- result_plotting_object$plot()
 
-  expect_plots_equal(plot, result)
+  expect_plots_equal(expected_plot, result_plot)
 })
 
 test_that("Test grouping", {
-  fields_ <- list(
-    "years" = list("label" = "Survey Year"),
-    "meanincome" = list("label" = "Mean Income")
-  )
-
   years <- as.factor(c(
     "2000",
     "2001",
@@ -118,15 +92,15 @@ test_that("Test grouping", {
     upper_confidence
   )
 
-  numeric_plot <- soep.plots::numeric_plot(
-    fields = fields_,
+  result_plotting_object <- soep.plots::numeric_plot(
+    fields = fields,
     data = group_input_table,
     x_axis = "years",
     y_axis = "meanincome",
     group_by = c("groups")
   )
 
-  plot <- ggplot(
+  expected_plot <- ggplot(
     group_input_table,
     aes(x = years, y = meanincome, group = groups, color = groups)
   ) +
@@ -152,8 +126,8 @@ test_that("Test grouping", {
       linetype = 2, alpha = .1
     )
 
-  result <- numeric_plot$plot()
-  expect_plots_equal(plot, result)
+  result_plot <- result_plotting_object$plot()
+  expect_plots_equal(expected_plot, result_plot)
 })
 
 
@@ -186,15 +160,15 @@ test_that("Test confidence interval", {
     upper_confidence
   )
 
-  result_plot <- soep.plots::numeric_plot(
+  result_plotting_object <- soep.plots::numeric_plot(
     fields = fields_,
     data = ci_input_table,
     x_axis = "years",
     y_axis = "meanincome",
-    group_by = vector()
+    group_by = c("groups")
   )
 
-  plot <- ggplot(
+  expected_plot <- ggplot(
     ci_input_table,
     aes(x = years, y = meanincome, group = groups, color = groups)
   ) +
@@ -217,7 +191,7 @@ test_that("Test confidence interval", {
     ylab("Mean Income") +
     xlab("Survey Year")
 
-  ci_plot <- plot +
+  expected_ci_plot <- expected_plot +
     geom_ribbon(
       aes_string(
         ymin = "lower_confidence",
@@ -226,16 +200,14 @@ test_that("Test confidence interval", {
       linetype = 2, alpha = .1
     )
 
-  result_plot$set_dimensions(group_by = c("groups"))
-  result <- result_plot$plot()
-  expect_plots_equal(ci_plot, result)
+  result <- result_plotting_object$plot()
+  expect_plots_equal(expected_ci_plot, result)
 
-  # Without CI
-  result_plot$disable_confidence_interval()
-  result <- result_plot$plot()
-  expect_plots_equal(plot, result)
-  # With CI Reenabled
-  result_plot$enable_confidence_interval()
-  result <- result_plot$plot()
-  expect_plots_equal(ci_plot, result)
+  result_plotting_object$disable_confidence_interval()
+  result <- result_plotting_object$plot()
+  expect_plots_equal(expected_plot, result)
+
+  result_plotting_object$enable_confidence_interval()
+  result <- result_plotting_object$plot()
+  expect_plots_equal(expected_ci_plot, result)
 })

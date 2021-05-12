@@ -3,9 +3,11 @@ library(testthat)
 
 library(soep.plots)
 
+source("helpers.R")
+
 # Set up
 fields <- list(
-    "years" = list("label" = "Years"),
+    "years" = list("label" = "Survey Year"),
     "proportion" = list("label" = "Proportion"),
     "category" = list("label" = "A Category")
 )
@@ -24,49 +26,77 @@ input_table <- data.frame(
     upper_confidence
 )
 
-#' Saves plots to image files and compares their file hashes.
-#'
-#' @param baseline The expected ggplot object to compare result to.
-#' @param compare The ggplot result of a test.
-#' @return The md5 hash of the result file.
-#' @examples
-#' expected <- ggplot(dataframe)
-#' result <- test_function() # Returns a ggplot object.
-#' expected_plots_equal(expected, result)
-expect_plots_equal <- function(expected, result) {
-    expected_file <- "baseline.png"
-    compare_file <- "compare.png"
-    withr::local_file(expected_file)
-    withr::local_file(compare_file)
-    ggplot2::ggsave(filename = expected_file, plot = expected, type = "cairo")
-    ggplot2::ggsave(filename = compare_file, plot = result, type = "cairo")
-    expect(
-        tools::md5sum(files = expected_file) ==
-            tools::md5sum(files = compare_file),
-        sprintf("Result Plot does not look like expected plot.")
+expected_plot_line <- ggplot(
+    input_table, aes(
+        group = category, y = proportion, x = years, color = category
     )
-    return(tools::md5sum(files = compare_file))
-}
+) +
+    geom_line() +
+    ylab("Proportion") +
+    xlab("Survey Year") +
+    scale_x_discrete(breaks = unique(input_table$year)) +
+    scale_y_continuous(
+        breaks = seq(0, 1, by = .1),
+        labels = sapply(
+            c(seq(0, 100, 10)),
+            function(x) paste(x, "%", sep = "")
+        )
+    ) +
+    theme(
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14, face = "bold"),
+        legend.text = element_text(size = 12)
+    ) +
+    labs(fill = "") +
+    geom_ribbon(
+        aes(ymin = lower_confidence, ymax = upper_confidence),
+        linetype = 2,
+        alpha = .1
+    )
 
-# Tests
+
+expected_plot_bar <- ggplot(
+    input_table, aes(
+        y = proportion, x = years, fill = category
+    )
+) +
+    geom_bar(position = "fill", stat = "identity") +
+    ylab("Proportion") +
+    xlab("Survey Year") +
+    scale_x_discrete(breaks = unique(input_table$year)) +
+    scale_y_continuous(
+        breaks = seq(0, 1, by = .1),
+        labels = sapply(
+            c(seq(0, 100, 10)),
+            function(x) paste(x, "%", sep = "")
+        )
+    ) +
+    theme(
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14, face = "bold"),
+        legend.text = element_text(size = 12)
+    ) +
+    labs(fill = "")
+
+
 test_that("CategoricalPlot Object initialization", {
-    categorical_plot <- soep.plots::categorical_plot(
+    result_plotting_object <- soep.plots::categorical_plot(
         fields = fields,
         data = input_table,
         x_axis = "years",
         y_axis = "proportion",
         group_by = c("category")
     )
-    expect_true(inherits(categorical_plot, "CategoricalPlot"))
-    expect_type(categorical_plot$fields, "list")
-    expect_identical(fields, categorical_plot$fields)
-    expect_true(is.data.frame(categorical_plot$data))
-    expect_identical(input_table, categorical_plot$data)
+    expect_true(inherits(result_plotting_object, "CategoricalPlot"))
+    expect_type(result_plotting_object$fields, "list")
+    expect_identical(fields, result_plotting_object$fields)
+    expect_true(is.data.frame(result_plotting_object$data))
+    expect_identical(input_table, result_plotting_object$data)
 })
 
 
 test_that("CategoricalPlot plotting.", {
-    categorical_plot <- soep.plots::categorical_plot(
+    result_plotting_object <- soep.plots::categorical_plot(
         fields = fields,
         data = input_table,
         x_axis = "years",
@@ -74,73 +104,28 @@ test_that("CategoricalPlot plotting.", {
         group_by = c("category")
     )
 
-    result <- categorical_plot$plot()
+    result_plot <- result_plotting_object$plot()
 
 
-    fields_ <- list(
-        "years" = list("label" = "Survey Year"),
-        "proportion" = list("label" = "Proportion")
+    expect_plots_equal(expected_plot_line, result_plot)
+})
+
+test_that("Plot type switching", {
+    result_plotting_object <- soep.plots::categorical_plot(
+        fields = fields,
+        data = input_table,
+        x_axis = "years",
+        y_axis = "proportion",
+        group_by = c("category")
     )
 
-    plot <- ggplot(
-        input_table, aes(
-            group = category, y = proportion, x = years, color = category
-        )
-    ) +
-        geom_line() +
-        ylab("Proportion") +
-        xlab("Years") +
-        scale_x_discrete(breaks = unique(input_table$year)) +
-        scale_y_continuous(
-            breaks = seq(0, 1, by = .1),
-            labels = sapply(
-                c(seq(0, 100, 10)),
-                function(x) paste(x, "%", sep = "")
-            )
-        ) +
-        theme(
-            axis.text = element_text(size = 12),
-            axis.title = element_text(size = 14, face = "bold"),
-            legend.text = element_text(size = 12)
-        ) +
-        labs(fill = "") +
-        geom_ribbon(
-            aes(ymin = lower_confidence, ymax = upper_confidence),
-            linetype = 2,
-            alpha = .1
-        )
-    expect_plots_equal(plot, result)
+    result_plotting_object$set_to_bar()
 
-    plot_bar <- ggplot(
-        input_table, aes(
-            y = proportion, x = years, fill = category
-        )
-    ) +
-        geom_bar(position = "fill", stat = "identity") +
-        ylab("Proportion") +
-        xlab("Years") +
-        scale_x_discrete(breaks = unique(input_table$year)) +
-        scale_y_continuous(
-            breaks = seq(0, 1, by = .1),
-            labels = sapply(
-                c(seq(0, 100, 10)),
-                function(x) paste(x, "%", sep = "")
-            )
-        ) +
-        theme(
-            axis.text = element_text(size = 12),
-            axis.title = element_text(size = 14, face = "bold"),
-            legend.text = element_text(size = 12)
-        ) +
-        labs(fill = "")
-    categorical_plot$set_to_bar()
+    result_plot_bar <- result_plotting_object$plot()
+    expect_plots_equal(expected_plot_bar, result_plot_bar)
 
+    result_plotting_object$set_to_line()
+    result_plot_line <- result_plotting_object$plot()
 
-    result <- categorical_plot$plot()
-    expect_plots_equal(plot_bar, result)
-
-    categorical_plot$set_to_line()
-    result <- categorical_plot$plot()
-
-    expect_plots_equal(plot, result)
+    expect_plots_equal(expected_plot_line, result_plot_line)
 })
