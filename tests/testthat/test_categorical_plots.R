@@ -7,11 +7,11 @@ source("helpers.R")
 
 # Set up
 fields <- list(
-    "years" = list("label" = "Survey Year"),
+    "year" = list("label" = "Survey Year"),
     "proportion" = list("label" = "Proportion"),
     "category" = list("label" = "A Category")
 )
-years <- as.factor(
+year <- as.factor(
     c("2000", "2000", "2001", "2001", "2002", "2002", "2003", "2003")
 )
 category <- c("a", "b", "a", "b", "a", "b", "a", "b")
@@ -19,7 +19,7 @@ proportion <- c(.1, .9, .6, .4, .1, .9, .6, .4)
 lower_confidence <- c(.09, .88, .59, .37, .09, .85, .54, .31)
 upper_confidence <- c(.11, .92, .63, .42, .11, .92, .61, .44)
 input_table <- data.frame(
-    years,
+    year,
     category,
     proportion,
     lower_confidence,
@@ -28,7 +28,7 @@ input_table <- data.frame(
 
 expected_plot_line <- ggplot(
     input_table, aes(
-        group = category, y = proportion, x = years, color = category
+        group = category, y = proportion, x = year, color = category
     )
 ) +
     geom_line() +
@@ -57,7 +57,7 @@ expected_plot_line <- ggplot(
 
 expected_plot_bar <- ggplot(
     input_table, aes(
-        y = proportion, x = years, fill = category
+        y = proportion, x = year, fill = category
     )
 ) +
     geom_bar(position = "fill", stat = "identity") +
@@ -83,7 +83,7 @@ test_that("CategoricalPlot Object initialization", {
     result_plotting_object <- soep.plots::categorical_plot(
         fields = fields,
         data = input_table,
-        x_axis = "years",
+        x_axis = "year",
         y_axis = "proportion",
         group_by = c("category")
     )
@@ -99,7 +99,7 @@ test_that("CategoricalPlot plotting.", {
     result_plotting_object <- soep.plots::categorical_plot(
         fields = fields,
         data = input_table,
-        x_axis = "years",
+        x_axis = "year",
         y_axis = "proportion",
         group_by = c("category")
     )
@@ -114,7 +114,7 @@ test_that("Plot type switching", {
     result_plotting_object <- soep.plots::categorical_plot(
         fields = fields,
         data = input_table,
-        x_axis = "years",
+        x_axis = "year",
         y_axis = "proportion",
         group_by = c("category")
     )
@@ -128,4 +128,49 @@ test_that("Plot type switching", {
     result_plot_line <- result_plotting_object$plot()
 
     expect_plots_equal(expected_plot_line, result_plot_line)
+})
+
+
+test_that("Year Range", {
+    result_plotting_object <- soep.plots::categorical_plot(
+        fields = fields,
+        data = input_table,
+        x_axis = "year",
+        y_axis = "proportion",
+        group_by = c("category")
+    )
+    subset_table <- subset(input_table, year %in% seq(2000, 2002))
+
+    expected_plot <- ggplot(
+        subset_table, aes(
+            group = category, y = proportion, x = year, color = category
+        )
+    ) +
+        geom_line() +
+        ylab("Proportion") +
+        xlab("Survey Year") +
+        scale_x_discrete(breaks = unique(input_table$year)) +
+        scale_y_continuous(
+            breaks = seq(0, 1, by = .1),
+            labels = sapply(
+                c(seq(0, 100, 10)),
+                function(x) paste(x, "%", sep = "")
+            )
+        ) +
+        theme(
+            axis.text = element_text(size = 12),
+            axis.title = element_text(size = 14, face = "bold"),
+            legend.text = element_text(size = 12)
+        ) +
+        labs(fill = "") +
+        geom_ribbon(
+            aes(ymin = lower_confidence, ymax = upper_confidence),
+            linetype = 2,
+            alpha = .1
+        )
+
+
+    result_plotting_object$set_year_range(year_range = c(2000, 2002))
+    result_plot <- result_plotting_object$plot()
+    expect_plots_equal(expected_plot, result_plot)
 })

@@ -14,7 +14,9 @@ general_plot <- setRefClass(
         y_axis = "character",
         group_by = "vector",
         confidence_interval = "logical",
-        type = "character"
+        type = "character",
+        year_range = "vector",
+        year_selection = "vector"
     ),
     methods = list(
         disable_confidence_interval = function(...) {
@@ -31,6 +33,25 @@ general_plot <- setRefClass(
             .self$y_axis <- y_axis
             .self$group_by <- group_by
         },
+        set_year_range = function(..., year_range) {
+            if (
+                length(year_range) == 2 &&
+                    year_range[1] >= .self$year_range[1] &&
+                    year_range[2] <= .self$year_range[2]
+            ) {
+                .self$year_selection <- year_range
+            }
+        },
+        get_data = function(...) {
+            if (!all(.self$year_range == .self$year_selection)) {
+                output <- subset(
+                    .self$data,
+                    year %in% seq(year_selection[1], year_selection[2])
+                )
+                return(output)
+            }
+            return(.self$data)
+        },
         initialize = function(...,
                               fields,
                               data,
@@ -44,6 +65,8 @@ general_plot <- setRefClass(
             x_axis <<- x_axis
             y_axis <<- y_axis
             group_by <<- group_by
+            year_range <<- range(levels(data[["year"]]))
+            year_selection <<- year_range
         }
     )
 )

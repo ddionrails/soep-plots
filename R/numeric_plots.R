@@ -14,15 +14,16 @@ numeric_plot <- setRefClass(
     methods = list(
         plot = function(...) {
             "Create a numerical plot from data and settings."
+            plot_data <- .self$get_data()
             if (length(.self$group_by) == 0) {
                 group <- ""
                 plot <- ggplot(
-                    .self$data,
+                    plot_data,
                     aes(x = !!sym(.self$x_axis), y = !!sym(.self$y_axis), group = "")
                 )
             } else {
                 plot <- ggplot(
-                    .self$data,
+                    plot_data,
                     aes(
                         x = !!sym(.self$x_axis),
                         y = !!sym(.self$y_axis),
@@ -34,9 +35,9 @@ numeric_plot <- setRefClass(
             plot <- plot +
                 geom_line() +
                 expand_limits(y = 0) +
-                scale_x_discrete(breaks = .self$data[[.self$x_axis]]) +
+                scale_x_discrete(breaks = plot_data[[.self$x_axis]]) +
                 scale_y_continuous(
-                    breaks = seq(0, max(.self$data[[.self$y_axis]]), by = 500)
+                    breaks = seq(0, max(plot_data[[.self$y_axis]]), by = 500)
                 ) +
                 theme(
                     axis.text = element_text(size = 12),

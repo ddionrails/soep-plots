@@ -7,21 +7,21 @@ source("helpers.R")
 
 # Set up
 fields <- list(
-  "years" = list("label" = "Survey Year"),
+  "year" = list("label" = "Survey Year"),
   "meanincome" = list("label" = "Mean Income")
 )
-years <- as.factor(c("2000", "2001", "2002", "2003"))
+year <- as.factor(c("2000", "2001", "2002", "2003"))
 meanincome <- c(1000, 2000, 3000, 1500)
 upper_confidence <- c(1100, 2100, 3200, 1600)
 lower_confidence <- c(900, 1800, 2900, 1000)
-input_table <- data.frame(years, meanincome, lower_confidence, upper_confidence)
+input_table <- data.frame(year, meanincome, lower_confidence, upper_confidence)
 
 
 test_that("NumericPlot Object initialization", {
   result_plotting_object <- soep.plots::numeric_plot(
     fields = fields,
     data = input_table,
-    x_axis = "years",
+    x_axis = "year",
     y_axis = "meanincome",
     group_by = vector()
   )
@@ -37,17 +37,17 @@ test_that("NumericPlot plotting.", {
   result_plotting_object <- soep.plots::numeric_plot(
     fields = fields,
     data = input_table,
-    x_axis = "years",
+    x_axis = "year",
     y_axis = "meanincome",
     group_by = vector()
   )
   expected_plot <- ggplot(
     input_table,
-    aes(x = years, y = meanincome, group = "")
+    aes(x = year, y = meanincome, group = "")
   ) +
     geom_line() +
     expand_limits(y = 0) +
-    scale_x_discrete(breaks = input_table$years) +
+    scale_x_discrete(breaks = input_table$year) +
     scale_y_continuous(breaks = seq(0, max(input_table$meanincome), by = 500)) +
     theme(
       axis.text = element_text(size = 12),
@@ -70,7 +70,7 @@ test_that("NumericPlot plotting.", {
 })
 
 test_that("Test grouping", {
-  years <- as.factor(c(
+  year <- as.factor(c(
     "2000",
     "2001",
     "2002",
@@ -85,7 +85,7 @@ test_that("Test grouping", {
   upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
   lower_confidence <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
   group_input_table <- data.frame(
-    years,
+    year,
     meanincome,
     groups,
     lower_confidence,
@@ -95,18 +95,18 @@ test_that("Test grouping", {
   result_plotting_object <- soep.plots::numeric_plot(
     fields = fields,
     data = group_input_table,
-    x_axis = "years",
+    x_axis = "year",
     y_axis = "meanincome",
     group_by = c("groups")
   )
 
   expected_plot <- ggplot(
     group_input_table,
-    aes(x = years, y = meanincome, group = groups, color = groups)
+    aes(x = year, y = meanincome, group = groups, color = groups)
   ) +
     geom_line() +
     expand_limits(y = 0) +
-    scale_x_discrete(breaks = group_input_table$years) +
+    scale_x_discrete(breaks = group_input_table$year) +
     scale_y_continuous(
       breaks = seq(0, max(group_input_table$meanincome), by = 500)
     ) +
@@ -134,11 +134,11 @@ test_that("Test grouping", {
 
 test_that("Test confidence interval", {
   fields_ <- list(
-    "years" = list("label" = "Survey Year"),
+    "year" = list("label" = "Survey Year"),
     "meanincome" = list("label" = "Mean Income")
   )
 
-  years <- as.factor(c(
+  year <- factor(as.numeric(c(
     "2000",
     "2001",
     "2002",
@@ -147,13 +147,13 @@ test_that("Test confidence interval", {
     "2001",
     "2002",
     "2003"
-  ))
+  )))
   meanincome <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
   groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
   upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
   lower_confidence <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
   ci_input_table <- data.frame(
-    years,
+    year,
     meanincome,
     groups,
     lower_confidence,
@@ -163,18 +163,18 @@ test_that("Test confidence interval", {
   result_plotting_object <- soep.plots::numeric_plot(
     fields = fields_,
     data = ci_input_table,
-    x_axis = "years",
+    x_axis = "year",
     y_axis = "meanincome",
     group_by = c("groups")
   )
 
   expected_plot <- ggplot(
     ci_input_table,
-    aes(x = years, y = meanincome, group = groups, color = groups)
+    aes(x = year, y = meanincome, group = groups, color = groups)
   ) +
     geom_line() +
     expand_limits(y = 0) +
-    scale_x_discrete(breaks = ci_input_table$years) +
+    scale_x_discrete(breaks = ci_input_table$year) +
     scale_y_continuous(
       breaks = seq(
         0,
@@ -210,4 +210,43 @@ test_that("Test confidence interval", {
   result_plotting_object$enable_confidence_interval()
   result <- result_plotting_object$plot()
   expect_plots_equal(expected_ci_plot, result)
+})
+
+
+test_that("Year Range", {
+  result_plotting_object <- soep.plots::numeric_plot(
+    fields = fields,
+    data = input_table,
+    x_axis = "year",
+    y_axis = "meanincome",
+    group_by = vector()
+  )
+  subset_table <- subset(input_table, year %in% seq(2000, 2002))
+  expected_plot <- ggplot(
+    subset_table,
+    aes(x = year, y = meanincome, group = "")
+  ) +
+    geom_line() +
+    expand_limits(y = 0) +
+    scale_x_discrete(breaks = seq(2000, 2002)) +
+    scale_y_continuous(breaks = seq(0, max(subset_table$meanincome), by = 500)) +
+    theme(
+      axis.text = element_text(size = 12),
+      axis.title = element_text(size = 14, face = "bold"),
+      legend.text = element_text(size = 12),
+      legend.title = element_blank()
+    ) +
+    ylab("Mean Income") +
+    xlab("Survey Year") +
+    geom_ribbon(
+      aes(
+        ymin = lower_confidence, ymax = upper_confidence
+      ),
+      linetype = 2, alpha = .1
+    )
+
+  result_plotting_object$set_year_range(year_range = c(2000, 2002))
+  result_plot <- result_plotting_object$plot()
+
+  expect_plots_equal(expected_plot, result_plot)
 })
