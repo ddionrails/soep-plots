@@ -34,6 +34,17 @@
                 "'devtools::document()'"
             ],
             "problemMatcher": []
+        },
+        {
+            "label": "check",
+            "group": "build",
+            "type": "shell",
+            "command": "/usr/lib/R/bin/Rscript",
+            "args": [
+                "-e",
+                "'devtools::check(document = FALSE)'"
+            ],
+            "problemMatcher": []
         }
     ]
 }

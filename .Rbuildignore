@@ -6,3 +6,10 @@
 ^\.github$
 ^codecov\.yml$
 ^README\.Rmd$
+^Dockerfile
+^Pipfile*
+^concept
+^.lintr
+^.pre-commit-config.yaml
+^.pytest_cache
+^.vscode

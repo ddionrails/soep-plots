@@ -1,5 +1,5 @@
 Package: soep.plots
-Title: Process Data for Visualization in Shiny Server.
+Title: Process Data for Visualization in Shiny Server
 Version: 0.0.1
 Authors@R: 
     person(given = "Dominique",
@@ -8,7 +8,7 @@ Authors@R:
            email = "dhansen@diw.de",
            )
 Description: Process Data for Visualization in Shiny Server.
-License: BSD-3-Clause
+License: BSD 3-clause License + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
@@ -16,7 +16,8 @@ RoxygenNote: 7.1.1
 Imports:
     ggplot2,
     plotly,
-    rjson
+    rjson,
+    methods
 Suggests:
     testthat (>= 3.0.0),
     styler,
@@ -24,7 +25,8 @@ Suggests:
     magick,
     languageserver,
     covr,
-    devtools
+    devtools,
+    withr
 Collate: 
     'plots.R'
     'categorical_plots.R'
