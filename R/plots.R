@@ -60,6 +60,9 @@ general_plot <- setRefClass(
                               group_by) {
             fields <<- fields
             data <<- data
+            if (length(group_by) > 0) {
+                data$generated_group <<- do.call(paste, data[group_by])
+            }
             confidence_interval <<- TRUE
             type <<- "line"
             x_axis <<- x_axis

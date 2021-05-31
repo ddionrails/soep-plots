@@ -15,6 +15,7 @@ year <- as.factor(
     c("2000", "2000", "2001", "2001", "2002", "2002", "2003", "2003")
 )
 category <- c("a", "b", "a", "b", "a", "b", "a", "b")
+generated_group <- category
 proportion <- c(.1, .9, .6, .4, .1, .9, .6, .4)
 lower_confidence <- c(.09, .88, .59, .37, .09, .85, .54, .31)
 upper_confidence <- c(.11, .92, .63, .42, .11, .92, .61, .44)
@@ -23,12 +24,20 @@ input_table <- data.frame(
     category,
     proportion,
     lower_confidence,
-    upper_confidence
+    upper_confidence,
+    generated_group
+)
+
+plot_theme <- theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 14, face = "bold"),
+    legend.text = element_text(size = 12),
+    legend.title = element_blank()
 )
 
 expected_plot_line <- ggplot(
     input_table, aes(
-        group = category, y = proportion, x = year, color = category
+        group = category, y = proportion, x = year, color = generated_group
     )
 ) +
     geom_line() +
@@ -42,11 +51,7 @@ expected_plot_line <- ggplot(
             function(x) paste(x, "%", sep = "")
         )
     ) +
-    theme(
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14, face = "bold"),
-        legend.text = element_text(size = 12)
-    ) +
+    plot_theme +
     labs(fill = "") +
     geom_ribbon(
         aes(ymin = lower_confidence, ymax = upper_confidence),
@@ -57,7 +62,7 @@ expected_plot_line <- ggplot(
 
 expected_plot_bar <- ggplot(
     input_table, aes(
-        y = proportion, x = year, fill = category
+        y = proportion, x = year, fill = generated_group
     )
 ) +
     geom_bar(position = "fill", stat = "identity") +
@@ -71,11 +76,7 @@ expected_plot_bar <- ggplot(
             function(x) paste(x, "%", sep = "")
         )
     ) +
-    theme(
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14, face = "bold"),
-        legend.text = element_text(size = 12)
-    ) +
+    plot_theme +
     labs(fill = "")
 
 
@@ -87,11 +88,13 @@ test_that("CategoricalPlot Object initialization", {
         y_axis = "proportion",
         group_by = c("category")
     )
+    category_input_table <- input_table
+    category_input_table$generated_group <- category
     expect_true(inherits(result_plotting_object, "CategoricalPlot"))
     expect_type(result_plotting_object$fields, "list")
     expect_identical(fields, result_plotting_object$fields)
     expect_true(is.data.frame(result_plotting_object$data))
-    expect_identical(input_table, result_plotting_object$data)
+    expect_identical(category_input_table, result_plotting_object$data)
 })
 
 
@@ -157,11 +160,7 @@ test_that("Year Range", {
                 function(x) paste(x, "%", sep = "")
             )
         ) +
-        theme(
-            axis.text = element_text(size = 12),
-            axis.title = element_text(size = 14, face = "bold"),
-            legend.text = element_text(size = 12)
-        ) +
+        plot_theme +
         labs(fill = "") +
         geom_ribbon(
             aes(ymin = lower_confidence, ymax = upper_confidence),

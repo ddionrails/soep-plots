@@ -16,7 +16,6 @@ RoxygenNote: 7.1.1
 Imports:
     ggplot2,
     plotly,
-    rjson,
     methods
 Suggests:
     testthat (>= 3.0.0),

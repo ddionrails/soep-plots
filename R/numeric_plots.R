@@ -27,8 +27,8 @@ numeric_plot <- setRefClass(
                     aes(
                         x = !!sym(.self$x_axis),
                         y = !!sym(.self$y_axis),
-                        group = !!sym(.self$group_by[1]),
-                        color = !!sym(.self$group_by[1])
+                        group = generated_group,
+                        color = generated_group
                     )
                 )
             }

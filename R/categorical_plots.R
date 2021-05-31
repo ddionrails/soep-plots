@@ -31,8 +31,8 @@ categorical_plot <- setRefClass(
                     aes(
                         x = !!sym(.self$x_axis),
                         y = !!sym(.self$y_axis),
-                        group = !!sym(.self$group_by),
-                        color = !!sym(.self$group_by)
+                        group = generated_group,
+                        color = generated_group
                     )
                 ) +
                     geom_line()
@@ -42,7 +42,7 @@ categorical_plot <- setRefClass(
                     aes(
                         x = !!sym(.self$x_axis),
                         y = !!sym(.self$y_axis),
-                        fill = !!sym(.self$group_by)
+                        fill = generated_group
                     )
                 ) +
                     geom_bar(position = "fill", stat = "identity")
@@ -62,7 +62,8 @@ categorical_plot <- setRefClass(
                 theme(
                     axis.text = element_text(size = 12),
                     axis.title = element_text(size = 14, face = "bold"),
-                    legend.text = element_text(size = 12)
+                    legend.text = element_text(size = 12),
+                    legend.title = element_blank()
                 ) +
                 labs(fill = "") +
                 geom_ribbon(
