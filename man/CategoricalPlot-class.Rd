@@ -6,6 +6,10 @@
 \alias{categorical_plot}
 \title{CategoricalPlot}
 \arguments{
+\item{fields}{metadata for the data columns}
+
+\item{data}{data.frame for the plot data}
+
 \item{x_axis}{column name from data to be plotted on the x axis}
 
 \item{y_axis}{column name from data to be plotted on the y axis}

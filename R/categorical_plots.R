@@ -6,6 +6,8 @@ library(ggplot2)
 #' @exportClass CategoricalPlot
 #' @title CategoricalPlot
 #' @description Handle Configuration and output of a categorical variable plot
+#' @param fields metadata for the data columns
+#' @param data data.frame for the plot data
 #' @param x_axis column name from data to be plotted on the x axis
 #' @param y_axis column name from data to be plotted on the y axis
 #' @param group_by vector of category column names
