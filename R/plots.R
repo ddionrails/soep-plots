@@ -70,7 +70,13 @@ general_plot <- setRefClass(
             x_axis <<- x_axis
             y_axis <<- y_axis
             group_by <<- group_by
-            year_range <<- range(levels(data[["year"]]))
+            if (is.factor(data$year)) {
+                year_range <<- range(levels(data[["year"]]))
+            }
+            else {
+                year_range <<- range(as.integer(data[["year"]]))
+                data$year <<- as.factor(data$year)
+            }
             year_selection <<- year_range
         }
     )

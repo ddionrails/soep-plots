@@ -200,16 +200,7 @@ test_that("Test confidence interval", {
     "meanincome" = list("label" = "Mean Income")
   )
 
-  year <- factor(as.numeric(c(
-    "2000",
-    "2001",
-    "2002",
-    "2003",
-    "2000",
-    "2001",
-    "2002",
-    "2003"
-  )))
+  year <- c("2000", "2001", "2002", "2003", "2000", "2001", "2002", "2003")
   meanincome <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
   groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
   upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
