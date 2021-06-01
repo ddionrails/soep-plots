@@ -63,6 +63,7 @@ categorical_plot <- setRefClass(
                 ) +
                 theme(
                     axis.text = element_text(size = 12),
+                    axis.text.x = element_text(size = 11, angle = -50),
                     axis.title = element_text(size = 14, face = "bold"),
                     legend.text = element_text(size = 12),
                     legend.title = element_blank()
