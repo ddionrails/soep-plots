@@ -40,7 +40,11 @@ numeric_plot <- setRefClass(
                 expand_limits(y = 0) +
                 scale_x_discrete(breaks = plot_data[[.self$x_axis]]) +
                 scale_y_continuous(
-                    breaks = seq(0, max(plot_data[[.self$y_axis]]), by = 500)
+                    breaks = seq(
+                        0,
+                        max(plot_data[[.self$y_axis]], na.rm = TRUE),
+                        by = 500
+                    )
                 ) +
                 theme(
                     axis.text = element_text(size = 12),
