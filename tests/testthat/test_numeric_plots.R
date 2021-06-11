@@ -18,6 +18,7 @@ input_table <- data.frame(year, meanincome, lower_confidence, upper_confidence)
 
 plot_theme <- theme(
   axis.text = element_text(size = 12),
+  axis.text.x = element_text(size = 11, angle = -50),
   axis.title = element_text(size = 14, face = "bold"),
   legend.text = element_text(size = 12),
   legend.title = element_blank()
@@ -46,7 +47,7 @@ test_that("NumericPlot plotting.", {
     data = input_table,
     x_axis = "year",
     y_axis = "meanincome",
-    group_by = vector()
+    group_by = list()
   )
   expected_plot <- ggplot(
     input_table,
