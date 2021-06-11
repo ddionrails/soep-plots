@@ -45,7 +45,7 @@ numeric_plot <- setRefClass(
                 )
             }
             plot <- plot +
-                geom_line() +
+                geom_path() +
                 expand_limits(y = 0) +
                 scale_x_discrete(breaks = plot_data[[.self$x_axis]]) +
                 scale_y_continuous(
