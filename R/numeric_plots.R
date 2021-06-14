@@ -3,10 +3,18 @@ library(ggplot2)
 
 y_scale_breaks <- function(column) {
     column <- column[is.numeric(column)]
+    maximum <- max(column, na.rm = TRUE)
+    interval <- 500
+    if (maximum < 1000) {
+        interval <- 50
+    }
+    if (maximum < 100) {
+        interval <- 5
+    }
     return(seq(
         0,
-        max(column, na.rm = TRUE),
-        by = 500
+        maximum,
+        by = interval
     ))
 }
 
