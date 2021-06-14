@@ -39,7 +39,26 @@ numeric_plot <- setRefClass(
                 group <- ""
                 plot <- ggplot(
                     plot_data,
-                    aes(x = !!sym(.self$x_axis), y = !!sym(.self$y_axis), group = "")
+                    aes(
+                        x = !!sym(.self$x_axis), y = !!sym(.self$y_axis), group = "",
+                        text = sprintf(
+                            paste0(
+                                c(
+                                    "Jahr: %s",
+                                    "Durchschnitt: %s",
+                                    "N: %s",
+                                    "Untere Konfidenz: %s",
+                                    "Obere Konfidenz: %s"
+                                ),
+                                collapse = "<br>"
+                            ),
+                            !!sym(.self$x_axis),
+                            !!sym(.self$y_axis),
+                            n,
+                            lower_confidence,
+                            upper_confidence
+                        )
+                    )
                 )
             } else {
                 plot <- ggplot(
@@ -48,7 +67,24 @@ numeric_plot <- setRefClass(
                         x = !!sym(.self$x_axis),
                         y = !!sym(.self$y_axis),
                         group = generated_group,
-                        color = generated_group
+                        color = generated_group,
+                        text = sprintf(
+                            paste0(
+                                c(
+                                    "Jahr: %s",
+                                    "Durchschnitt: %s",
+                                    "N: %s",
+                                    "Untere Konfidenz: %s",
+                                    "Obere Konfidenz: %s"
+                                ),
+                                collapse = "<br>"
+                            ),
+                            !!sym(.self$x_axis),
+                            !!sym(.self$y_axis),
+                            n,
+                            lower_confidence,
+                            upper_confidence
+                        )
                     )
                 )
             }
