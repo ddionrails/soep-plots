@@ -5,7 +5,7 @@
 #' @param data data.frame for the plot data
 #' @param x_axis column name from data to be plotted on the x axis
 #' @param y_axis column name from data to be plotted on the y axis
-#' @param group_by vector of category column names
+#' @param dimension_metadata vector of category column names
 #' @param type determies plot type; either 'line' or 'bar'
 general_plot <- setRefClass(
     "GeneralPlot",
@@ -14,11 +14,12 @@ general_plot <- setRefClass(
         data = "data.frame",
         x_axis = "character",
         y_axis = "character",
-        group_by = "vector",
+        dimension_metadata = "list",
         confidence_interval = "logical",
         type = "character",
         year_range = "vector",
-        year_selection = "vector"
+        year_selection = "vector",
+        row_selector = "logical"
     ),
     methods = list(
         disable_confidence_interval = function(...) {
@@ -30,10 +31,10 @@ general_plot <- setRefClass(
         set_dimensions = function(...,
                                   x_axis = .self$x_axis,
                                   y_axis = .self$y_axis,
-                                  group_by = .self$group_by) {
+                                  dimension_metadata = .self$dimension_metadata) {
             .self$x_axis <- x_axis
             .self$y_axis <- y_axis
-            .self$group_by <- group_by
+            .self$dimension_metadata <- dimension_metadata
         },
         set_year_range = function(..., year_range) {
             if (
@@ -54,22 +55,29 @@ general_plot <- setRefClass(
             }
             return(.self$data)
         },
+        prepare_dimensions = function(..., groups) {
+            if (!is.null(groups)) {
+                .self$data$merged_group_name <- do.call(paste, data[groups])
+            }
+            .self$data <- .self$data[complete.cases(.self$data), ]
+        },
         initialize = function(...,
                               fields,
                               data,
                               x_axis,
                               y_axis,
-                              group_by) {
+                              dimension_metadata,
+                              group_axis = NULL) {
             fields <<- fields
             data <<- data
-            if (length(group_by) > 0) {
-                data$generated_group <<- do.call(paste, data[group_by])
-            }
+            prepare_dimensions(
+                groups = group_axis,
+                dimension_metadata = dimension_metadata,
+            )
             confidence_interval <<- TRUE
             type <<- "line"
             x_axis <<- x_axis
             y_axis <<- y_axis
-            group_by <<- group_by
             if (is.factor(data$year)) {
                 year_range <<- range(levels(data[["year"]]))
             }

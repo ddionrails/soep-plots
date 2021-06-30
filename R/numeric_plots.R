@@ -1,6 +1,8 @@
 #' @include plots.R
 library(ggplot2)
 
+#' @description Helper function to set y scale depending on values to display
+#' @param column dataframe column with y scale values
 y_scale_breaks <- function(column) {
     column <- column[is.numeric(column)]
     maximum <- max(column, na.rm = TRUE)
@@ -26,7 +28,7 @@ y_scale_breaks <- function(column) {
 #' @param data data.frame for the plot data
 #' @param x_axis column name from data to be plotted on the x axis
 #' @param y_axis column name from data to be plotted on the y axis
-#' @param group_by vector of category column names
+#' @param dimension_metadata vector of category column names
 #' @param type determies plot type; either 'line' or 'bar'
 numeric_plot <- setRefClass(
     "NumericPlot",
@@ -35,7 +37,36 @@ numeric_plot <- setRefClass(
         plot = function(...) {
             "Create a numerical plot from data and settings."
             plot_data <- .self$get_data()
-            if (length(.self$group_by) == 0) {
+            if ("merged_group_name" %in% names(plot_data)) {
+                plot <- ggplot(
+                    plot_data,
+                    aes(
+                        x = !!sym(.self$x_axis),
+                        y = !!sym(.self$y_axis),
+                        group = merged_group_name,
+                        color = merged_group_name,
+                        text = sprintf(
+                            paste0(
+                                c(
+                                    "%s",
+                                    "Jahr: %s",
+                                    "Durchschnitt: %s",
+                                    "N: %s",
+                                    "Untere Konfidenz: %s",
+                                    "Obere Konfidenz: %s"
+                                ),
+                                collapse = "<br>"
+                            ),
+                            merged_group_name,
+                            !!sym(.self$x_axis),
+                            !!sym(.self$y_axis),
+                            n,
+                            lower_confidence,
+                            upper_confidence
+                        )
+                    )
+                )
+            } else {
                 group <- ""
                 plot <- ggplot(
                     plot_data,
@@ -60,36 +91,10 @@ numeric_plot <- setRefClass(
                         )
                     )
                 )
-            } else {
-                plot <- ggplot(
-                    plot_data,
-                    aes(
-                        x = !!sym(.self$x_axis),
-                        y = !!sym(.self$y_axis),
-                        group = generated_group,
-                        color = generated_group,
-                        text = sprintf(
-                            paste0(
-                                c(
-                                    "Jahr: %s",
-                                    "Durchschnitt: %s",
-                                    "N: %s",
-                                    "Untere Konfidenz: %s",
-                                    "Obere Konfidenz: %s"
-                                ),
-                                collapse = "<br>"
-                            ),
-                            !!sym(.self$x_axis),
-                            !!sym(.self$y_axis),
-                            n,
-                            lower_confidence,
-                            upper_confidence
-                        )
-                    )
-                )
             }
             plot <- plot +
                 geom_path() +
+                coord_cartesian() +
                 expand_limits(y = 0) +
                 scale_x_discrete(breaks = plot_data[[.self$x_axis]]) +
                 scale_y_continuous(

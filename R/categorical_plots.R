@@ -10,7 +10,7 @@ library(ggplot2)
 #' @param data data.frame for the plot data
 #' @param x_axis column name from data to be plotted on the x axis
 #' @param y_axis column name from data to be plotted on the y axis
-#' @param group_by vector of category column names
+#' @param dimension_metadata vector of category column names
 #' @param type determies plot type; either 'line' or 'bar'
 categorical_plot <- setRefClass(
     "CategoricalPlot",
@@ -24,6 +24,26 @@ categorical_plot <- setRefClass(
             "Set type of plot returned to a barchart"
             .self$type <- "line"
         },
+        get_data = function(...) {
+            output <- .self$data[.self$row_selector, ]
+            output <- subset(
+                output,
+                year %in% seq(year_selection[1], year_selection[2])
+            )
+            return(output)
+        },
+        prepare_dimensions = function(..., dimension_metadata, groups) {
+            .self$data$merged_group_name <- do.call(paste, .self$data[groups])
+            row_selectors <- lapply(
+                names(dimension_metadata),
+                FUN = function(x, grouping, data) {
+                    data[, x] == grouping[x]
+                },
+                grouping = dimension_metadata,
+                data = .self$data
+            )
+            .self$row_selector <- Reduce("&", row_selectors)
+        },
         plot = function(...) {
             "Prepare ggplot output from data and config."
             plot_data <- .self$get_data()
@@ -33,18 +53,18 @@ categorical_plot <- setRefClass(
                     aes(
                         x = !!sym(.self$x_axis),
                         y = !!sym(.self$y_axis),
-                        group = generated_group,
-                        color = generated_group
+                        group = merged_group_name,
+                        color = merged_group_name
                     )
                 ) +
-                    geom_line()
+                    geom_path()
             } else if (.self$type == "bar") {
                 output_plot <- ggplot(
                     plot_data,
                     aes(
                         x = !!sym(.self$x_axis),
                         y = !!sym(.self$y_axis),
-                        fill = generated_group
+                        fill = merged_group_name
                     )
                 ) +
                     geom_bar(position = "fill", stat = "identity")

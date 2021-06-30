@@ -8,28 +8,30 @@ source("helpers.R")
 # Set up
 fields <- list(
     "year" = list("label" = "Survey Year"),
-    "proportion" = list("label" = "Proportion"),
-    "category" = list("label" = "A Category")
+    "proportion" = list("label" = "Proportion")
 )
 year <- as.factor(
     c("2000", "2000", "2001", "2001", "2002", "2002", "2003", "2003")
 )
+dimension <- c("f", "f", "f", "f", "f", "f", "f", "f")
 category <- c("a", "b", "a", "b", "a", "b", "a", "b")
-generated_group <- category
+merged_group_name <- category
 proportion <- c(.1, .9, .6, .4, .1, .9, .6, .4)
 lower_confidence <- c(.09, .88, .59, .37, .09, .85, .54, .31)
 upper_confidence <- c(.11, .92, .63, .42, .11, .92, .61, .44)
 input_table <- data.frame(
     year,
     category,
+    dimension,
     proportion,
     lower_confidence,
     upper_confidence,
-    generated_group
+    merged_group_name
 )
 
 plot_theme <- theme(
     axis.text = element_text(size = 12),
+    axis.text.x = element_text(size = 11, angle = -50),
     axis.title = element_text(size = 14, face = "bold"),
     legend.text = element_text(size = 12),
     legend.title = element_blank()
@@ -37,10 +39,10 @@ plot_theme <- theme(
 
 expected_plot_line <- ggplot(
     input_table, aes(
-        group = category, y = proportion, x = year, color = generated_group
+        group = category, y = proportion, x = year, color = merged_group_name
     )
 ) +
-    geom_line() +
+    geom_path() +
     ylab("Proportion") +
     xlab("Survey Year") +
     scale_x_discrete(breaks = unique(input_table$year)) +
@@ -62,7 +64,7 @@ expected_plot_line <- ggplot(
 
 expected_plot_bar <- ggplot(
     input_table, aes(
-        y = proportion, x = year, fill = generated_group
+        y = proportion, x = year, fill = merged_group_name
     )
 ) +
     geom_bar(position = "fill", stat = "identity") +
@@ -86,10 +88,11 @@ test_that("CategoricalPlot Object initialization", {
         data = input_table,
         x_axis = "year",
         y_axis = "proportion",
-        group_by = c("category")
+        group_axis = c("category"),
+        dimension_metadata = list("dimension" = "f")
     )
     category_input_table <- input_table
-    category_input_table$generated_group <- category
+    category_input_table$merged_group_name <- category
     expect_true(inherits(result_plotting_object, "CategoricalPlot"))
     expect_type(result_plotting_object$fields, "list")
     expect_identical(fields, result_plotting_object$fields)
@@ -104,7 +107,8 @@ test_that("CategoricalPlot plotting.", {
         data = input_table,
         x_axis = "year",
         y_axis = "proportion",
-        group_by = c("category")
+        group_axis = c("category"),
+        dimension_metadata = list("dimension" = "f")
     )
 
     result_plot <- result_plotting_object$plot()
@@ -119,7 +123,8 @@ test_that("Plot type switching", {
         data = input_table,
         x_axis = "year",
         y_axis = "proportion",
-        group_by = c("category")
+        group_axis = c("category"),
+        dimension_metadata = list("dimension" = "f"),
     )
 
     result_plotting_object$set_to_bar()
@@ -140,7 +145,8 @@ test_that("Year Range", {
         data = input_table,
         x_axis = "year",
         y_axis = "proportion",
-        group_by = c("category")
+        group_axis = c("category"),
+        dimension_metadata = list("dimension" = "f")
     )
     subset_table <- subset(input_table, year %in% seq(2000, 2002))
 
@@ -149,7 +155,7 @@ test_that("Year Range", {
             group = category, y = proportion, x = year, color = category
         )
     ) +
-        geom_line() +
+        geom_path() +
         ylab("Proportion") +
         xlab("Survey Year") +
         scale_x_discrete(breaks = unique(input_table$year)) +
@@ -170,6 +176,82 @@ test_that("Year Range", {
 
 
     result_plotting_object$set_year_range(year_range = c(2000, 2002))
+    result_plot <- result_plotting_object$plot()
+    expect_plots_equal(expected_plot, result_plot)
+})
+
+test_that("Test dimension_metadata", {
+    fields <- list(
+        "year" = list("label" = "Survey Year"),
+        "proportion" = list("label" = "Proportion")
+    )
+    year <- as.factor(
+        c(
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2001",
+            "2001",
+            "2001",
+            "2001",
+            "2002",
+            "2002",
+            "2002",
+            "2002"
+        )
+    )
+    dimension <- c("f", "f", "m", "m", "f", "f", "m", "m", "f", "f", "m", "m")
+    category <- c("a", "b", "a", "b", "a", "b", "a", "b", "a", "b", "a", "b")
+    proportion <- c(.1, .9, .6, .4, .9, .1, .6, .4, .1, .9, .6, .4)
+    lower_confidence <- c(
+        .09, .88, .59, .37, .85, .09, .54, .31, .09, .88, .59, .37
+    )
+    upper_confidence <- c(
+        .11, .92, .63, .42, .92, .11, .61, .44, .11, .92, .63, .42
+    )
+    input_table <- data.frame(
+        year,
+        category,
+        dimension,
+        proportion,
+        lower_confidence,
+        upper_confidence
+    )
+    expected_table <- input_table[input_table$dimension == "f", ]
+
+    expected_plot <- ggplot(
+        expected_table, aes(
+            group = category, y = proportion, x = year, color = category
+        )
+    ) +
+        geom_path() +
+        ylab("Proportion") +
+        xlab("Survey Year") +
+        scale_x_discrete(breaks = unique(input_table$year)) +
+        scale_y_continuous(
+            breaks = seq(0, 1, by = .1),
+            labels = sapply(
+                c(seq(0, 100, 10)),
+                function(x) paste(x, "%", sep = "")
+            )
+        ) +
+        plot_theme +
+        labs(fill = "") +
+        geom_ribbon(
+            aes(ymin = lower_confidence, ymax = upper_confidence),
+            linetype = 2,
+            alpha = .1
+        )
+
+    result_plotting_object <- soep.plots::categorical_plot(
+        fields = fields,
+        data = input_table,
+        x_axis = "year",
+        y_axis = "proportion",
+        group_axis = c("category"),
+        dimension_metadata = list("dimension" = "f")
+    )
     result_plot <- result_plotting_object$plot()
     expect_plots_equal(expected_plot, result_plot)
 })

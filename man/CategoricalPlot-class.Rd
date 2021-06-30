@@ -14,7 +14,7 @@
 
 \item{y_axis}{column name from data to be plotted on the y axis}
 
-\item{group_by}{vector of category column names}
+\item{dimension_metadata}{vector of category column names}
 
 \item{type}{determies plot type; either 'line' or 'bar'}
 }
