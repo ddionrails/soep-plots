@@ -57,7 +57,7 @@ general_plot <- setRefClass(
         },
         prepare_dimensions = function(..., groups) {
             if (!is.null(groups)) {
-                .self$data$merged_group_name <- do.call(paste, data[groups])
+                .self$data$merged_group_name <- do.call(paste, .self$data[groups])
             }
             .self$data <- .self$data[complete.cases(.self$data), ]
         },
@@ -78,12 +78,12 @@ general_plot <- setRefClass(
             type <<- "line"
             x_axis <<- x_axis
             y_axis <<- y_axis
-            if (is.factor(data$year)) {
-                year_range <<- range(levels(data[["year"]]))
+            if (is.factor(.self$data$year)) {
+                year_range <<- range(levels(.self$data[["year"]]))
             }
             else {
-                year_range <<- range(as.integer(data[["year"]]))
-                data$year <<- as.factor(data$year)
+                year_range <<- range(as.integer(.self$data[["year"]]))
+                .self$data$year <- as.factor(.self$data$year)
             }
             year_selection <<- year_range
         }
