@@ -1,7 +1,7 @@
 #' Saves plots to image files and compares their file hashes.
 #'
-#' @param baseline The expected ggplot object to compare result to.
-#' @param compare The ggplot result of a test.
+#' @param expected The expected ggplot object to compare result to.
+#' @param result The ggplot result of a test.
 #' @return The md5 hash of the result file.
 #' @examples
 #' expected <- ggplot(dataframe)

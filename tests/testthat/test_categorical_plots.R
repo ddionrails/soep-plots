@@ -82,6 +82,8 @@ expected_plot_bar <- ggplot(
     labs(fill = "")
 
 
+
+
 test_that("CategoricalPlot Object initialization", {
     result_plotting_object <- soep.plots::categorical_plot(
         fields = fields,
@@ -89,7 +91,7 @@ test_that("CategoricalPlot Object initialization", {
         x_axis = "year",
         y_axis = "proportion",
         group_axis = c("category"),
-        dimension_metadata = list("dimension" = "f")
+        dimension_metadata = list()
     )
     category_input_table <- input_table
     category_input_table$merged_group_name <- category

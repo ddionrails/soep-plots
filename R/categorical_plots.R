@@ -25,7 +25,11 @@ categorical_plot <- setRefClass(
             .self$type <- "line"
         },
         get_data = function(...) {
-            output <- .self$data[.self$row_selector, ]
+            if (length(.self$row_selector) == 0) {
+                output <- .self$data
+            } else {
+                output <- .self$data[.self$row_selector, ]
+            }
             output <- subset(
                 output,
                 year %in% seq(year_selection[1], year_selection[2])
@@ -34,6 +38,10 @@ categorical_plot <- setRefClass(
         },
         prepare_dimensions = function(..., dimension_metadata, groups) {
             .self$data$merged_group_name <- do.call(paste, .self$data[groups])
+            if (length(dimension_metadata) == 0) {
+                .self$row_selector <- logical()
+                return()
+            }
             row_selectors <- lapply(
                 names(dimension_metadata),
                 FUN = function(x, grouping, data) {
