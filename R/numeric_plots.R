@@ -1,8 +1,9 @@
 #' @include plots.R
 library(ggplot2)
 
-#' @description Helper function to set y scale depending on values to display
+#' Helper function to set y scale depending on values to display
 #' @param column dataframe column with y scale values
+#' @noRd
 y_scale_breaks <- function(column) {
     column <- column[is.numeric(column)]
     maximum <- max(column, na.rm = TRUE)
