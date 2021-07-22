@@ -96,12 +96,16 @@ categorical_plot <- setRefClass(
                     legend.text = element_text(size = 12),
                     legend.title = element_blank()
                 ) +
-                labs(fill = "") +
-                geom_ribbon(
-                    aes(ymin = lower_confidence, ymax = upper_confidence),
-                    linetype = 2,
-                    alpha = .1
-                )
+                labs(fill = "")
+            if (.self$confidence_interval) {
+                output_plot <- output_plot +
+                    geom_ribbon(
+                        aes(ymin = lower_confidence, ymax = upper_confidence),
+                        linetype = 2,
+                        alpha = .1
+                    )
+            }
+            return(output_plot)
         }
     )
 )
