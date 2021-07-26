@@ -68,6 +68,7 @@ categorical_plot <- setRefClass(
                         text = sprintf(
                             paste0(
                                 c(
+                                    "%s",
                                     "Jahr: %s",
                                     "Anteil: %1.2f%%",
                                     "N: %s",
@@ -76,6 +77,7 @@ categorical_plot <- setRefClass(
                                 ),
                                 collapse = "<br>"
                             ),
+                            merged_group_name,
                             !!sym(.self$x_axis),
                             !!sym(.self$y_axis) * 100,
                             n,
@@ -95,6 +97,7 @@ categorical_plot <- setRefClass(
                         text = sprintf(
                             paste0(
                                 c(
+                                    "%s",
                                     "Jahr: %s",
                                     "Anteil: %1.2f%%",
                                     "N: %s",
@@ -103,6 +106,7 @@ categorical_plot <- setRefClass(
                                 ),
                                 collapse = "<br>"
                             ),
+                            merged_group_name,
                             !!sym(.self$x_axis),
                             !!sym(.self$y_axis) * 100,
                             n,
