@@ -71,16 +71,16 @@ categorical_plot <- setRefClass(
                                     "Jahr: %s",
                                     "Anteil: %1.2f%%",
                                     "N: %s",
-                                    "Untere Konfidenz: %1.2f%%",
-                                    "Obere Konfidenz: %1.2f%%"
+                                    "Obere Konfidenz: %1.2f%%",
+                                    "Untere Konfidenz: %1.2f%%"
                                 ),
                                 collapse = "<br>"
                             ),
                             !!sym(.self$x_axis),
                             !!sym(.self$y_axis) * 100,
                             n,
-                            lower_confidence * 100,
-                            upper_confidence * 100
+                            upper_confidence * 100,
+                            lower_confidence * 100
                         )
                     )
                 ) +
@@ -98,16 +98,16 @@ categorical_plot <- setRefClass(
                                     "Jahr: %s",
                                     "Anteil: %1.2f%%",
                                     "N: %s",
-                                    "Untere Konfidenz: %1.2f%%",
-                                    "Obere Konfidenz: %1.2f%%"
+                                    "Obere Konfidenz: %1.2f%%",
+                                    "Untere Konfidenz: %1.2f%%"
                                 ),
                                 collapse = "<br>"
                             ),
                             !!sym(.self$x_axis),
                             !!sym(.self$y_axis) * 100,
                             n,
-                            lower_confidence * 100,
-                            upper_confidence * 100
+                            upper_confidence * 100,
+                            lower_confidence * 100
                         )
                     )
                 ) +

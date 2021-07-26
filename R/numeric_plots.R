@@ -53,8 +53,8 @@ numeric_plot <- setRefClass(
                                     "Jahr: %s",
                                     "Durchschnitt: %1.2f",
                                     "N: %s",
-                                    "Untere Konfidenz: %1.2f",
-                                    "Obere Konfidenz: %1.2f"
+                                    "Obere Konfidenz: %1.2f",
+                                    "Untere Konfidenz: %1.2f"
                                 ),
                                 collapse = "<br>"
                             ),
@@ -62,8 +62,8 @@ numeric_plot <- setRefClass(
                             !!sym(.self$x_axis),
                             !!sym(.self$y_axis),
                             n,
-                            lower_confidence,
-                            upper_confidence
+                            upper_confidence,
+                            lower_confidence
                         )
                     )
                 )
@@ -79,16 +79,16 @@ numeric_plot <- setRefClass(
                                     "Jahr: %s",
                                     "Durchschnitt: %1.2f",
                                     "N: %s",
-                                    "Untere Konfidenz: %1.2f",
-                                    "Obere Konfidenz: %1.2f"
+                                    "Obere Konfidenz: %1.2f",
+                                    "Untere Konfidenz: %1.2f"
                                 ),
                                 collapse = "<br>"
                             ),
                             !!sym(.self$x_axis),
                             !!sym(.self$y_axis),
                             n,
-                            lower_confidence,
-                            upper_confidence
+                            upper_confidence,
+                            lower_confidence
                         )
                     )
                 )
