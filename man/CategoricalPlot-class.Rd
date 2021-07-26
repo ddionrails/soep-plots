@@ -14,7 +14,10 @@
 
 \item{y_axis}{column name from data to be plotted on the y axis}
 
-\item{dimension_metadata}{vector of category column names}
+\item{dimension_metadata}{list of selected category column names as keys and
+selected row values as list values.}
+
+\item{group_axis}{vector with column names used as group argument in ggplot}
 
 \item{type}{determies plot type; either 'line' or 'bar'}
 }

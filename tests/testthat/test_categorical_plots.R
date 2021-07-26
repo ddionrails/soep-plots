@@ -17,6 +17,7 @@ dimension <- c("f", "f", "f", "f", "f", "f", "f", "f")
 category <- c("a", "b", "a", "b", "a", "b", "a", "b")
 merged_group_name <- category
 proportion <- c(.1, .9, .6, .4, .1, .9, .6, .4)
+n <- c(1, 9, 6, 4, 1, 9, 6, 4)
 lower_confidence <- c(.09, .88, .59, .37, .09, .85, .54, .31)
 upper_confidence <- c(.11, .92, .63, .42, .11, .92, .61, .44)
 input_table <- data.frame(
@@ -24,6 +25,7 @@ input_table <- data.frame(
     category,
     dimension,
     proportion,
+    n,
     lower_confidence,
     upper_confidence,
     merged_group_name
@@ -206,6 +208,7 @@ test_that("Test dimension_metadata", {
     dimension <- c("f", "f", "m", "m", "f", "f", "m", "m", "f", "f", "m", "m")
     category <- c("a", "b", "a", "b", "a", "b", "a", "b", "a", "b", "a", "b")
     proportion <- c(.1, .9, .6, .4, .9, .1, .6, .4, .1, .9, .6, .4)
+    n <- c(1, 9, 6, 4, 9, 1, 6, 4, 1, 9, 6, 4)
     lower_confidence <- c(
         .09, .88, .59, .37, .85, .09, .54, .31, .09, .88, .59, .37
     )
@@ -217,6 +220,7 @@ test_that("Test dimension_metadata", {
         category,
         dimension,
         proportion,
+        n,
         lower_confidence,
         upper_confidence
     )

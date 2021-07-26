@@ -10,7 +10,9 @@ library(ggplot2)
 #' @param data data.frame for the plot data
 #' @param x_axis column name from data to be plotted on the x axis
 #' @param y_axis column name from data to be plotted on the y axis
-#' @param dimension_metadata vector of category column names
+#' @param dimension_metadata list of selected category column names as keys and
+#'                           selected row values as list values.
+#' @param group_axis vector with column names used as group argument in ggplot
 #' @param type determies plot type; either 'line' or 'bar'
 categorical_plot <- setRefClass(
     "CategoricalPlot",
@@ -62,7 +64,24 @@ categorical_plot <- setRefClass(
                         x = !!sym(.self$x_axis),
                         y = !!sym(.self$y_axis),
                         group = merged_group_name,
-                        color = merged_group_name
+                        color = merged_group_name,
+                        text = sprintf(
+                            paste0(
+                                c(
+                                    "Jahr: %s",
+                                    "Anteil: %s",
+                                    "N: %s",
+                                    "Untere Konfidenz: %s",
+                                    "Obere Konfidenz: %s"
+                                ),
+                                collapse = "<br>"
+                            ),
+                            !!sym(.self$x_axis),
+                            !!sym(.self$y_axis),
+                            n,
+                            lower_confidence,
+                            upper_confidence
+                        )
                     )
                 ) +
                     geom_path()
@@ -72,7 +91,24 @@ categorical_plot <- setRefClass(
                     aes(
                         x = !!sym(.self$x_axis),
                         y = !!sym(.self$y_axis),
-                        fill = merged_group_name
+                        fill = merged_group_name,
+                        text = sprintf(
+                            paste0(
+                                c(
+                                    "Jahr: %s",
+                                    "Anteil: %s",
+                                    "N: %s",
+                                    "Untere Konfidenz: %s",
+                                    "Obere Konfidenz: %s"
+                                ),
+                                collapse = "<br>"
+                            ),
+                            !!sym(.self$x_axis),
+                            !!sym(.self$y_axis),
+                            n,
+                            lower_confidence,
+                            upper_confidence
+                        )
                     )
                 ) +
                     geom_bar(position = "fill", stat = "identity")
