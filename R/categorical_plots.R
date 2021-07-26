@@ -121,7 +121,13 @@ categorical_plot <- setRefClass(
             output_plot <- output_plot +
                 ylab(.self$fields[[.self$y_axis]][["label"]]) +
                 xlab(.self$fields[[.self$x_axis]][["label"]]) +
-                scale_x_discrete(breaks = unique(plot_data[[.self$x_axis]])) +
+                scale_x_discrete(
+                    breaks = seq(
+                        .self$year_selection[1],
+                        .self$year_selection[2],
+                        by = 1
+                    )
+                ) +
                 scale_y_continuous(
                     breaks = seq(0, 1, by = .1),
                     labels = sapply(
