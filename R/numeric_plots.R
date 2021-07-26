@@ -51,10 +51,10 @@ numeric_plot <- setRefClass(
                                 c(
                                     "%s",
                                     "Jahr: %s",
-                                    "Durchschnitt: %s",
+                                    "Durchschnitt: %1.2f",
                                     "N: %s",
-                                    "Untere Konfidenz: %s",
-                                    "Obere Konfidenz: %s"
+                                    "Untere Konfidenz: %1.2f",
+                                    "Obere Konfidenz: %1.2f"
                                 ),
                                 collapse = "<br>"
                             ),
@@ -77,10 +77,10 @@ numeric_plot <- setRefClass(
                             paste0(
                                 c(
                                     "Jahr: %s",
-                                    "Durchschnitt: %s",
+                                    "Durchschnitt: %1.2f",
                                     "N: %s",
-                                    "Untere Konfidenz: %s",
-                                    "Obere Konfidenz: %s"
+                                    "Untere Konfidenz: %1.2f",
+                                    "Obere Konfidenz: %1.2f"
                                 ),
                                 collapse = "<br>"
                             ),
