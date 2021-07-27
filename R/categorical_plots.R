@@ -86,7 +86,7 @@ categorical_plot <- setRefClass(
                         )
                     )
                 ) +
-                    geom_path()
+                    geom_path(na.rm = TRUE)
             } else if (.self$type == "bar") {
                 output_plot <- ggplot(
                     plot_data,
@@ -115,7 +115,7 @@ categorical_plot <- setRefClass(
                         )
                     )
                 ) +
-                    geom_bar(position = "fill", stat = "identity")
+                    geom_bar(position = "fill", stat = "identity", na.rm = TRUE)
             }
 
             output_plot <- output_plot +
