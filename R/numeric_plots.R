@@ -97,7 +97,7 @@ numeric_plot <- setRefClass(
                 geom_path(na.rm = TRUE) +
                 coord_cartesian() +
                 expand_limits(y = 0) +
-                scale_x_discrete(
+                scale_x_continuous(
                     breaks = seq(
                         .self$year_selection[1],
                         .self$year_selection[2],

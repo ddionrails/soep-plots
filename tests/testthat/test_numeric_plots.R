@@ -10,7 +10,7 @@ fields <- list(
   "year" = list("label" = "Survey Year"),
   "meanincome" = list("label" = "Mean Income")
 )
-year <- as.factor(c("2000", "2001", "2002", "2003"))
+year <- as.integer(c("2000", "2001", "2002", "2003"))
 meanincome <- c(1000, 2000, 3000, 1500)
 n <- c(5000, 5400, 4500, 5000)
 upper_confidence <- c(1100, 2100, 3200, 1600)
@@ -54,7 +54,7 @@ test_that("NumericPlot plotting.", {
   ) +
     geom_path() +
     expand_limits(y = 0) +
-    scale_x_discrete(breaks = input_table$year) +
+    scale_x_continuous(breaks = input_table$year) +
     scale_y_continuous(breaks = seq(0, max(input_table$meanincome), by = 500)) +
     plot_theme +
     ylab("Mean Income") +
@@ -72,7 +72,7 @@ test_that("NumericPlot plotting.", {
 })
 
 test_that("Test grouping", {
-  year <- as.factor(c(
+  year <- as.integer(c(
     "2000",
     "2001",
     "2002",
@@ -111,7 +111,12 @@ test_that("Test grouping", {
   ) +
     geom_path() +
     expand_limits(y = 0) +
-    scale_x_discrete(breaks = group_input_table$year) +
+    scale_x_continuous(
+      breaks = seq(
+        min(group_input_table$year), max(group_input_table$year),
+        by = 1
+      )
+    ) +
     scale_y_continuous(
       breaks = seq(0, max(group_input_table$meanincome, na.rm = TRUE), by = 500)
     ) +
@@ -132,7 +137,7 @@ test_that("Test grouping", {
 
 
 test_that("Test several groups", {
-  year <- as.factor(c(
+  year <- as.integer(c(
     "2000",
     "2001",
     "2002",
@@ -181,7 +186,12 @@ test_that("Test several groups", {
     geom_path() +
     coord_cartesian() +
     expand_limits(y = 0) +
-    scale_x_discrete(breaks = group_input_table$year) +
+    scale_x_continuous(
+      breaks = seq(
+        min(group_input_table$year), max(group_input_table$year),
+        by = 1
+      )
+    ) +
     scale_y_continuous(
       breaks = seq(0, max(group_input_table$meanincome), by = 500)
     ) +
@@ -209,7 +219,9 @@ test_that("Test confidence interval", {
     "meanincome" = list("label" = "Mean Income")
   )
 
-  year <- c("2000", "2001", "2002", "2003", "2000", "2001", "2002", "2003")
+  year <- as.integer(
+    c("2000", "2001", "2002", "2003", "2000", "2001", "2002", "2003")
+  )
   meanincome <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
   n <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
   groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
@@ -238,7 +250,9 @@ test_that("Test confidence interval", {
   ) +
     geom_path() +
     expand_limits(y = 0) +
-    scale_x_discrete(breaks = ci_input_table$year) +
+    scale_x_continuous(
+      breaks = seq(min(ci_input_table$year), max(ci_input_table$year), by = 1)
+    ) +
     scale_y_continuous(
       breaks = seq(
         0,
@@ -286,7 +300,7 @@ test_that("Year Range", {
   ) +
     geom_path() +
     expand_limits(y = 0) +
-    scale_x_discrete(breaks = seq(2000, 2002)) +
+    scale_x_continuous(breaks = seq(2000, 2002)) +
     scale_y_continuous(breaks = seq(0, max(subset_table$meanincome), by = 500)) +
     plot_theme +
     ylab("Mean Income") +

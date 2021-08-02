@@ -10,9 +10,10 @@ fields <- list(
     "year" = list("label" = "Survey Year"),
     "proportion" = list("label" = "Proportion")
 )
-year <- as.factor(
+year <- as.numeric(
     c("2000", "2000", "2001", "2001", "2002", "2002", "2003", "2003")
 )
+
 dimension <- c("f", "f", "f", "f", "f", "f", "f", "f")
 category <- c("a", "b", "a", "b", "a", "b", "a", "b")
 merged_group_name <- category
@@ -47,7 +48,9 @@ expected_plot_line <- ggplot(
     geom_path() +
     ylab("Proportion") +
     xlab("Survey Year") +
-    scale_x_discrete(breaks = unique(input_table$year)) +
+    scale_x_continuous(
+        breaks = seq(min(input_table$year), max(input_table$year), by = 1)
+    ) +
     scale_y_continuous(
         breaks = seq(0, 1, by = .1),
         labels = sapply(
@@ -72,7 +75,9 @@ expected_plot_bar <- ggplot(
     geom_bar(position = "fill", stat = "identity") +
     ylab("Proportion") +
     xlab("Survey Year") +
-    scale_x_discrete(breaks = unique(input_table$year)) +
+    scale_x_continuous(
+        breaks = seq(min(input_table$year), max(input_table$year), by = 1)
+    ) +
     scale_y_continuous(
         breaks = seq(0, 1, by = .1),
         labels = sapply(
@@ -162,7 +167,9 @@ test_that("Year Range", {
         geom_path() +
         ylab("Proportion") +
         xlab("Survey Year") +
-        scale_x_discrete(breaks = unique(input_table$year)) +
+        scale_x_continuous(
+            breaks = seq(min(input_table$year), max(input_table$year), by = 1)
+        ) +
         scale_y_continuous(
             breaks = seq(0, 1, by = .1),
             labels = sapply(
@@ -189,7 +196,7 @@ test_that("Test dimension_metadata", {
         "year" = list("label" = "Survey Year"),
         "proportion" = list("label" = "Proportion")
     )
-    year <- as.factor(
+    year <- as.numeric(
         c(
             "2000",
             "2000",
@@ -234,7 +241,9 @@ test_that("Test dimension_metadata", {
         geom_path() +
         ylab("Proportion") +
         xlab("Survey Year") +
-        scale_x_discrete(breaks = unique(input_table$year)) +
+        scale_x_continuous(
+            breaks = seq(min(input_table$year), max(input_table$year), by = 1)
+        ) +
         scale_y_continuous(
             breaks = seq(0, 1, by = .1),
             labels = sapply(
