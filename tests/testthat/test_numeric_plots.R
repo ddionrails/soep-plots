@@ -53,6 +53,7 @@ test_that("NumericPlot plotting.", {
     aes(x = year, y = meanincome, group = "")
   ) +
     geom_path() +
+    geom_point(size = .2) +
     expand_limits(y = 0) +
     scale_x_continuous(breaks = input_table$year) +
     scale_y_continuous(breaks = seq(0, max(input_table$meanincome), by = 500)) +
@@ -110,6 +111,7 @@ test_that("Test grouping", {
     aes(x = year, y = meanincome, group = groups, color = groups)
   ) +
     geom_path() +
+    geom_point(size = .2) +
     expand_limits(y = 0) +
     scale_x_continuous(
       breaks = seq(
@@ -184,6 +186,7 @@ test_that("Test several groups", {
     aes(x = year, y = meanincome, group = groups, color = groups)
   ) +
     geom_path() +
+    geom_point(size = .2) +
     coord_cartesian() +
     expand_limits(y = 0) +
     scale_x_continuous(
@@ -249,6 +252,7 @@ test_that("Test confidence interval", {
     aes(x = year, y = meanincome, group = groups, color = groups)
   ) +
     geom_path() +
+    geom_point(size = .2) +
     expand_limits(y = 0) +
     scale_x_continuous(
       breaks = seq(min(ci_input_table$year), max(ci_input_table$year), by = 1)
@@ -299,6 +303,7 @@ test_that("Year Range", {
     aes(x = year, y = meanincome, group = "")
   ) +
     geom_path() +
+    geom_point(size = .2) +
     expand_limits(y = 0) +
     scale_x_continuous(breaks = seq(2000, 2002)) +
     scale_y_continuous(breaks = seq(0, max(subset_table$meanincome), by = 500)) +

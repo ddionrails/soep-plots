@@ -86,7 +86,8 @@ categorical_plot <- setRefClass(
                         )
                     )
                 ) +
-                    geom_path(na.rm = TRUE)
+                    geom_path(na.rm = TRUE) +
+                    geom_point(size = .2)
             } else if (.self$type == "bar") {
                 output_plot <- ggplot(
                     plot_data,
