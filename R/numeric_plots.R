@@ -14,6 +14,9 @@ y_scale_breaks <- function(column) {
     if (maximum < 100) {
         interval <- 5
     }
+    if (maximum <= 10) {
+        interval <- 1
+    }
     return(seq(
         0,
         maximum,
