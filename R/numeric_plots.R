@@ -98,7 +98,7 @@ numeric_plot <- setRefClass(
             }
             plot <- plot +
                 geom_path(na.rm = TRUE) +
-                geom_point(size = .5, shape = 3) +
+                geom_point(size = 2, shape = 3) +
                 coord_cartesian() +
                 expand_limits(y = 0) +
                 scale_x_continuous(
