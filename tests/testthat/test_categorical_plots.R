@@ -46,7 +46,7 @@ expected_plot_line <- ggplot(
     )
 ) +
     geom_path() +
-    geom_point(size = .2) +
+    geom_point(size = 2, shape = 3) +
     ylab("Proportion") +
     xlab("Survey Year") +
     scale_x_continuous(
@@ -166,7 +166,7 @@ test_that("Year Range", {
         )
     ) +
         geom_path() +
-        geom_point(size = .2) +
+        geom_point(size = 2, shape = 3) +
         ylab("Proportion") +
         xlab("Survey Year") +
         scale_x_continuous(
@@ -241,7 +241,7 @@ test_that("Test dimension_metadata", {
         )
     ) +
         geom_path() +
-        geom_point(size = .2) +
+        geom_point(size = 2, shape = 3) +
         ylab("Proportion") +
         xlab("Survey Year") +
         scale_x_continuous(

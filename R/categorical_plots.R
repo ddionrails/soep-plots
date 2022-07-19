@@ -1,6 +1,6 @@
 #' @include plots.R
 
-library(ggplot2)
+
 
 #' @export  categorical_plot
 #' @exportClass CategoricalPlot
@@ -58,9 +58,9 @@ categorical_plot <- setRefClass(
             "Prepare ggplot output from data and config."
             plot_data <- .self$get_data()
             if (.self$type == "line") {
-                output_plot <- ggplot(
+                output_plot <- ggplot2::ggplot(
                     plot_data,
-                    aes(
+                    ggplot2::aes(
                         x = !!sym(.self$x_axis),
                         y = !!sym(.self$y_axis),
                         group = merged_group_name,
@@ -86,10 +86,10 @@ categorical_plot <- setRefClass(
                         )
                     )
                 ) +
-                    geom_path(na.rm = TRUE) +
-                    geom_point(size = 2, shape = 3)
+                    ggplot2::geom_path(na.rm = TRUE) +
+                    ggplot2::geom_point(size = 2, shape = 3)
             } else if (.self$type == "bar") {
-                output_plot <- ggplot(
+                output_plot <- ggplot2::ggplot(
                     plot_data,
                     aes(
                         x = !!sym(.self$x_axis),
