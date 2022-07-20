@@ -19,7 +19,8 @@ general_plot <- setRefClass(
         type = "character",
         year_range = "vector",
         year_selection = "vector",
-        row_selector = "logical"
+        row_selector = "logical",
+        y_scale_limits = "vector"
     ),
     methods = list(
         disable_confidence_interval = function(...) {
@@ -85,6 +86,7 @@ general_plot <- setRefClass(
                 year_range <<- range(as.integer(.self$data[["year"]]))
             }
             year_selection <<- year_range
+            y_scale_limits <<- vector()
         }
     )
 )

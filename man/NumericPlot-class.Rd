@@ -25,5 +25,7 @@ Handle Configuration and output of a numeric variable plot
 
 \describe{
 \item{\code{plot(...)}}{Create a numerical plot from data and settings.}
+
+\item{\code{set_y_scale_limits(..., y_scale_limits)}}{Set y scale upper and lower limit.}
 }}
 

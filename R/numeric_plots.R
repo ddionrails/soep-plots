@@ -1,5 +1,5 @@
-#' @include plots.R
 #' @import ggplot2
+#' @include plots.R
 
 #' Helper function to set y scale depending on values to display
 #' @param column dataframe column with y scale values
@@ -38,6 +38,22 @@ numeric_plot <- setRefClass(
     "NumericPlot",
     contains = "GeneralPlot",
     methods = list(
+        get_y_scale_breaks = function(...) {
+            if (length(.self$y_scale_limits) == 2) {
+                return(seq(
+                    .self$y_scale_limits[1],
+                    .self$y_scale_limits[2],
+                    by = 1
+                ))
+            }
+            return(y_scale_breaks(...))
+        },
+        set_y_scale_limits = function(..., y_scale_limits) {
+            "Set y scale upper and lower limit."
+            if (length(year_range) == 2) {
+                y_scale_limits <<- sort(as.numeric(y_scale_limits))
+            }
+        },
         plot = function(...) {
             "Create a numerical plot from data and settings."
             plot_data <- .self$get_data()
@@ -109,7 +125,7 @@ numeric_plot <- setRefClass(
                     )
                 ) +
                 scale_y_continuous(
-                    breaks = y_scale_breaks
+                    breaks = .self$get_y_scale_breaks
                 ) +
                 theme(
                     axis.text = element_text(size = 12),

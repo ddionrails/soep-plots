@@ -72,6 +72,39 @@ test_that("NumericPlot plotting.", {
   expect_plots_equal(expected_plot, result_plot)
 })
 
+test_that("Test set_y_scale_limit.", {
+  result_plotting_object <- soep.plots::numeric_plot(
+    fields = fields,
+    data = input_table,
+    x_axis = "year",
+    y_axis = "meanincome",
+  )
+  result_plotting_object$set_y_scale_limits(y_scale_limits = c(1, 20))
+  expected_plot <- ggplot(
+    input_table,
+    aes(x = year, y = meanincome, group = "")
+  ) +
+    geom_path() +
+    geom_point(size = 2, shape = 3) +
+    expand_limits(y = 0) +
+    scale_x_continuous(breaks = input_table$year) +
+    scale_y_continuous(breaks = seq(1, 20, by = 1)) +
+    plot_theme +
+    ylab("Mean Income") +
+    xlab("Survey Year") +
+    geom_ribbon(
+      aes(
+        ymin = lower_confidence, ymax = upper_confidence
+      ),
+      linetype = 2, alpha = .1
+    )
+
+  result_plot <- result_plotting_object$plot()
+
+  expect_plots_equal(expected_plot, result_plot)
+})
+
+
 test_that("Test grouping", {
   year <- as.integer(c(
     "2000",
