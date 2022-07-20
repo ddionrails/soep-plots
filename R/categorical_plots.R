@@ -1,4 +1,5 @@
 #' @include plots.R
+#' @import ggplot2
 
 
 
@@ -58,9 +59,9 @@ categorical_plot <- setRefClass(
             "Prepare ggplot output from data and config."
             plot_data <- .self$get_data()
             if (.self$type == "line") {
-                output_plot <- ggplot2::ggplot(
+                output_plot <- ggplot(
                     plot_data,
-                    ggplot2::aes(
+                    aes(
                         x = !!sym(.self$x_axis),
                         y = !!sym(.self$y_axis),
                         group = merged_group_name,
@@ -86,10 +87,10 @@ categorical_plot <- setRefClass(
                         )
                     )
                 ) +
-                    ggplot2::geom_path(na.rm = TRUE) +
-                    ggplot2::geom_point(size = 2, shape = 3)
+                    geom_path(na.rm = TRUE) +
+                    geom_point(size = 2, shape = 3)
             } else if (.self$type == "bar") {
-                output_plot <- ggplot2::ggplot(
+                output_plot <- ggplot(
                     plot_data,
                     aes(
                         x = !!sym(.self$x_axis),

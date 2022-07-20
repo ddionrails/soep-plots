@@ -1,5 +1,5 @@
 #' @include plots.R
-library(ggplot2)
+#' @import ggplot2
 
 #' Helper function to set y scale depending on values to display
 #' @param column dataframe column with y scale values

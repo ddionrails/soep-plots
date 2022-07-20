@@ -81,8 +81,7 @@ general_plot <- setRefClass(
             if (is.factor(.self$data$year)) {
                 .self$data$year <- as.integer(.self$data$year)
                 year_range <<- range(.self$data[["year"]])
-            }
-            else {
+            } else {
                 year_range <<- range(as.integer(.self$data[["year"]]))
             }
             year_selection <<- year_range
