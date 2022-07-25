@@ -124,9 +124,6 @@ numeric_plot <- setRefClass(
                         by = 1
                     )
                 ) +
-                scale_y_continuous(
-                    breaks = .self$get_y_scale_breaks, limits = .self$y_scale_limits
-                ) +
                 theme(
                     axis.text = element_text(size = 12),
                     axis.text.x = element_text(size = 11, angle = -50),
@@ -136,6 +133,16 @@ numeric_plot <- setRefClass(
                 ) +
                 ylab(.self$fields[[.self$y_axis]][["label"]]) +
                 xlab(.self$fields[[.self$x_axis]][["label"]])
+            if (length(.self$y_scale_limits) == 2) {
+                plot <- plot + scale_y_continuous(
+                    breaks = .self$get_y_scale_breaks, limits = .self$y_scale_limits
+                )
+            } else {
+                plot <- plot + scale_y_continuous(
+                    breaks = .self$get_y_scale_breaks
+                )
+            }
+
             if (.self$confidence_interval) {
                 plot <- plot +
                     geom_ribbon(
