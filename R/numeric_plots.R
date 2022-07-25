@@ -125,7 +125,7 @@ numeric_plot <- setRefClass(
                     )
                 ) +
                 scale_y_continuous(
-                    breaks = .self$get_y_scale_breaks
+                    breaks = .self$get_y_scale_breaks, limits = .self$y_scale_limits
                 ) +
                 theme(
                     axis.text = element_text(size = 12),
