@@ -4,9 +4,15 @@
 #' Helper function to set y scale depending on values to display
 #' @param column dataframe column with y scale values
 #' @noRd
-y_scale_breaks <- function(column) {
+y_scale_breaks <- function(column, limits = vector()) {
     column <- column[is.numeric(column)]
-    maximum <- max(column, na.rm = TRUE)
+    if (length(limits) == 2) {
+        minimum <- limits[1]
+        maximum <- limits[2]
+    } else {
+        maximum <- max(column, na.rm = TRUE)
+        minimum <- 0
+    }
     interval <- 500
     if (maximum < 1000) {
         interval <- 50
@@ -18,7 +24,7 @@ y_scale_breaks <- function(column) {
         interval <- 1
     }
     return(seq(
-        0,
+        minimum,
         maximum,
         by = interval
     ))
@@ -40,11 +46,7 @@ numeric_plot <- setRefClass(
     methods = list(
         get_y_scale_breaks = function(...) {
             if (length(.self$y_scale_limits) == 2) {
-                return(seq(
-                    .self$y_scale_limits[1],
-                    .self$y_scale_limits[2],
-                    by = 1
-                ))
+                return(y_scale_breaks(..., limits = .self$y_scale_limits))
             }
             return(y_scale_breaks(...))
         },

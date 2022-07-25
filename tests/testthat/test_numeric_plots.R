@@ -79,7 +79,7 @@ test_that("Test set_y_scale_limit.", {
     x_axis = "year",
     y_axis = "meanincome",
   )
-  result_plotting_object$set_y_scale_limits(y_scale_limits = c(1, 20))
+  result_plotting_object$set_y_scale_limits(y_scale_limits = c(1, 4000))
   expected_plot <- ggplot(
     input_table,
     aes(x = year, y = meanincome, group = "")
@@ -88,7 +88,7 @@ test_that("Test set_y_scale_limit.", {
     geom_point(size = 2, shape = 3) +
     expand_limits(y = 0) +
     scale_x_continuous(breaks = input_table$year) +
-    scale_y_continuous(breaks = seq(1, 20, by = 1)) +
+    scale_y_continuous(breaks = seq(1, 4000, by = 500), limits = c(1, 4000)) +
     plot_theme +
     ylab("Mean Income") +
     xlab("Survey Year") +
