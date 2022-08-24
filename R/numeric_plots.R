@@ -72,7 +72,7 @@ numeric_plot <- setRefClass(
                                 c(
                                     "%s",
                                     "Jahr: %s",
-                                    "Durchschnitt: %1.2f",
+                                    "Mittelwert: %1.2f",
                                     "N: %s",
                                     "Obere Konfidenz: %1.2f",
                                     "Untere Konfidenz: %1.2f"
@@ -98,7 +98,7 @@ numeric_plot <- setRefClass(
                             paste0(
                                 c(
                                     "Jahr: %s",
-                                    "Durchschnitt: %1.2f",
+                                    "Mittelwert: %1.2f",
                                     "N: %s",
                                     "Obere Konfidenz: %1.2f",
                                     "Untere Konfidenz: %1.2f"
