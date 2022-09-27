@@ -115,10 +115,10 @@ numeric_plot <- setRefClass(
                 plot <- .self$initialize_ungrouped_plot(plot_data)
             }
             plot <- plot +
-                geom_path(na.rm = TRUE) +
-                geom_point(size = 2, shape = 3) +
                 coord_cartesian() +
                 expand_limits(y = 0) +
+                geom_path(na.rm = TRUE) +
+                geom_point(size = 2, shape = 3) +
                 scale_x_continuous(
                     breaks = seq(
                         .self$year_selection[1],
