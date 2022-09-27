@@ -1,6 +1,17 @@
 #' @include plots.R
 #' @import ggplot2
 
+tooltip_template <- paste0(
+    c(
+        "%s",
+        "Jahr: %s",
+        "Anteil: %1.2f%%",
+        "N: %s",
+        "Obere Konfidenz: %1.2f%%",
+        "Untere Konfidenz: %1.2f%%"
+    ),
+    collapse = "<br>"
+)
 
 
 #' @export  categorical_plot
@@ -55,72 +66,61 @@ categorical_plot <- setRefClass(
             )
             .self$row_selector <- Reduce("&", row_selectors)
         },
+        initialize_bar_plot = function(plot_data) {
+            output_plot <- ggplot(
+                plot_data,
+                aes(
+                    x = !!sym(.self$x_axis),
+                    y = !!sym(.self$y_axis),
+                    fill = merged_group_name,
+                    text = sprintf(
+                        tooltip_template,
+                        merged_group_name,
+                        !!sym(.self$x_axis),
+                        !!sym(.self$y_axis) * 100,
+                        n,
+                        upper_confidence * 100,
+                        lower_confidence * 100
+                    )
+                )
+            ) +
+                geom_bar(position = "fill", stat = "identity", na.rm = TRUE)
+            return(output_plot)
+        },
+        initialize_line_plot = function(plot_data) {
+            output_plot <- ggplot(
+                plot_data,
+                aes(
+                    x = !!sym(.self$x_axis),
+                    y = !!sym(.self$y_axis),
+                    group = merged_group_name,
+                    color = merged_group_name,
+                    text = sprintf(
+                        tooltip_template,
+                        merged_group_name,
+                        !!sym(.self$x_axis),
+                        !!sym(.self$y_axis) * 100,
+                        n,
+                        upper_confidence * 100,
+                        lower_confidence * 100
+                    )
+                )
+            ) +
+                geom_path(na.rm = TRUE) +
+                geom_point(size = 2, shape = 3)
+
+            return(output_plot)
+        },
         plot = function(...) {
             "Prepare ggplot output from data and config."
             plot_data <- .self$get_data()
             if (.self$type == "line") {
-                output_plot <- ggplot(
-                    plot_data,
-                    aes(
-                        x = !!sym(.self$x_axis),
-                        y = !!sym(.self$y_axis),
-                        group = merged_group_name,
-                        color = merged_group_name,
-                        text = sprintf(
-                            paste0(
-                                c(
-                                    "%s",
-                                    "Jahr: %s",
-                                    "Anteil: %1.2f%%",
-                                    "N: %s",
-                                    "Obere Konfidenz: %1.2f%%",
-                                    "Untere Konfidenz: %1.2f%%"
-                                ),
-                                collapse = "<br>"
-                            ),
-                            merged_group_name,
-                            !!sym(.self$x_axis),
-                            !!sym(.self$y_axis) * 100,
-                            n,
-                            upper_confidence * 100,
-                            lower_confidence * 100
-                        )
-                    )
-                ) +
-                    geom_path(na.rm = TRUE) +
-                    geom_point(size = 2, shape = 3)
+                plot <- .self$initialize_line_plot(plot_data)
             } else if (.self$type == "bar") {
-                output_plot <- ggplot(
-                    plot_data,
-                    aes(
-                        x = !!sym(.self$x_axis),
-                        y = !!sym(.self$y_axis),
-                        fill = merged_group_name,
-                        text = sprintf(
-                            paste0(
-                                c(
-                                    "%s",
-                                    "Jahr: %s",
-                                    "Anteil: %1.2f%%",
-                                    "N: %s",
-                                    "Obere Konfidenz: %1.2f%%",
-                                    "Untere Konfidenz: %1.2f%%"
-                                ),
-                                collapse = "<br>"
-                            ),
-                            merged_group_name,
-                            !!sym(.self$x_axis),
-                            !!sym(.self$y_axis) * 100,
-                            n,
-                            upper_confidence * 100,
-                            lower_confidence * 100
-                        )
-                    )
-                ) +
-                    geom_bar(position = "fill", stat = "identity", na.rm = TRUE)
+                plot <- .self$initialize_bar_plot(plot_data)
             }
 
-            output_plot <- output_plot +
+            plot <- plot +
                 ylab(.self$fields[[.self$y_axis]][["label"]]) +
                 xlab(.self$fields[[.self$x_axis]][["label"]]) +
                 scale_x_continuous(
@@ -146,14 +146,14 @@ categorical_plot <- setRefClass(
                 ) +
                 labs(fill = "")
             if (.self$confidence_interval) {
-                output_plot <- output_plot +
+                plot <- plot +
                     geom_ribbon(
                         aes(ymin = lower_confidence, ymax = upper_confidence),
                         linetype = 2,
                         alpha = .1
                     )
             }
-            return(output_plot)
+            return(plot)
         }
     )
 )
