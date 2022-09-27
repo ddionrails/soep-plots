@@ -30,6 +30,18 @@ y_scale_breaks <- function(column, limits = vector()) {
     ))
 }
 
+tooltip_template <- paste0(
+    c(
+        "Jahr: %s",
+        "Durchschnitt: %1.2f",
+        "N: %s",
+        "Obere Konfidenz: %1.2f",
+        "Untere Konfidenz: %1.2f"
+    ),
+    collapse = "<br/>"
+)
+tooltip_template_with_grouping <- paste("%s", tooltip_template, sep = "<br/>")
+
 #' @export numeric_plot
 #' @exportClass NumericPlot
 #' @title NumericPlot
@@ -56,63 +68,51 @@ numeric_plot <- setRefClass(
                 y_scale_limits <<- sort(as.numeric(y_scale_limits))
             }
         },
+        initialize_grouped_plot = function(plot_data) {
+            plot <- ggplot(
+                plot_data,
+                aes(
+                    x = !!sym(.self$x_axis),
+                    y = !!sym(.self$y_axis),
+                    group = merged_group_name,
+                    color = merged_group_name,
+                    text = sprintf(
+                        tooltip_template_with_grouping,
+                        merged_group_name,
+                        !!sym(.self$x_axis),
+                        !!sym(.self$y_axis),
+                        n,
+                        upper_confidence,
+                        lower_confidence
+                    )
+                )
+            )
+            return(plot)
+        },
+        initialize_ungrouped_plot = function(plot_data) {
+            plot <- ggplot(
+                plot_data,
+                aes(
+                    x = !!sym(.self$x_axis), y = !!sym(.self$y_axis), group = "",
+                    text = sprintf(
+                        tooltip_template,
+                        !!sym(.self$x_axis),
+                        !!sym(.self$y_axis),
+                        n,
+                        upper_confidence,
+                        lower_confidence
+                    )
+                )
+            )
+            return(plot)
+        },
         plot = function(...) {
             "Create a numerical plot from data and settings."
             plot_data <- .self$get_data()
             if ("merged_group_name" %in% names(plot_data)) {
-                plot <- ggplot(
-                    plot_data,
-                    aes(
-                        x = !!sym(.self$x_axis),
-                        y = !!sym(.self$y_axis),
-                        group = merged_group_name,
-                        color = merged_group_name,
-                        text = sprintf(
-                            paste0(
-                                c(
-                                    "%s",
-                                    "Jahr: %s",
-                                    "Mittelwert: %1.2f",
-                                    "N: %s",
-                                    "Obere Konfidenz: %1.2f",
-                                    "Untere Konfidenz: %1.2f"
-                                ),
-                                collapse = "<br>"
-                            ),
-                            merged_group_name,
-                            !!sym(.self$x_axis),
-                            !!sym(.self$y_axis),
-                            n,
-                            upper_confidence,
-                            lower_confidence
-                        )
-                    )
-                )
+                plot <- .self$initialize_grouped_plot(plot_data)
             } else {
-                group <- ""
-                plot <- ggplot(
-                    plot_data,
-                    aes(
-                        x = !!sym(.self$x_axis), y = !!sym(.self$y_axis), group = "",
-                        text = sprintf(
-                            paste0(
-                                c(
-                                    "Jahr: %s",
-                                    "Mittelwert: %1.2f",
-                                    "N: %s",
-                                    "Obere Konfidenz: %1.2f",
-                                    "Untere Konfidenz: %1.2f"
-                                ),
-                                collapse = "<br>"
-                            ),
-                            !!sym(.self$x_axis),
-                            !!sym(.self$y_axis),
-                            n,
-                            upper_confidence,
-                            lower_confidence
-                        )
-                    )
-                )
+                plot <- .self$initialize_ungrouped_plot(plot_data)
             }
             plot <- plot +
                 geom_path(na.rm = TRUE) +
