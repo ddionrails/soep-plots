@@ -30,6 +30,35 @@ categorical_plot <- setRefClass(
     "CategoricalPlot",
     contains = "GeneralPlot",
     methods = list(
+        add_default_layers = function(plot) {
+            plot <- plot +
+                labs(fill = "") +
+                scale_x_continuous(
+                    breaks = seq(
+                        .self$year_selection[1],
+                        .self$year_selection[2],
+                        by = 1
+                    )
+                ) +
+                scale_y_continuous(
+                    breaks = seq(0, 1, by = .1),
+                    labels = sapply(
+                        c(seq(0, 100, 10)),
+                        function(x) paste(x, "%", sep = "")
+                    )
+                ) +
+                theme(
+                    axis.text = element_text(size = 12),
+                    axis.text.x = element_text(size = 11, angle = -50),
+                    axis.title = element_text(size = 14, face = "bold"),
+                    legend.text = element_text(size = 12),
+                    legend.title = element_blank()
+                ) +
+                xlab(.self$fields[[.self$x_axis]][["label"]]) +
+                ylab(.self$fields[[.self$y_axis]][["label"]])
+
+            return(plot)
+        },
         set_to_bar = function(...) {
             "Set type of plot returned to a barchart"
             .self$type <- "bar"
@@ -120,32 +149,9 @@ categorical_plot <- setRefClass(
                 plot <- .self$initialize_bar_plot(plot_data)
             }
 
-            plot <- plot +
-                ylab(.self$fields[[.self$y_axis]][["label"]]) +
-                xlab(.self$fields[[.self$x_axis]][["label"]]) +
-                scale_x_continuous(
-                    breaks = seq(
-                        .self$year_selection[1],
-                        .self$year_selection[2],
-                        by = 1
-                    )
-                ) +
-                scale_y_continuous(
-                    breaks = seq(0, 1, by = .1),
-                    labels = sapply(
-                        c(seq(0, 100, 10)),
-                        function(x) paste(x, "%", sep = "")
-                    )
-                ) +
-                theme(
-                    axis.text = element_text(size = 12),
-                    axis.text.x = element_text(size = 11, angle = -50),
-                    axis.title = element_text(size = 14, face = "bold"),
-                    legend.text = element_text(size = 12),
-                    legend.title = element_blank()
-                ) +
-                labs(fill = "")
-            if (.self$confidence_interval) {
+            plot <- add_default_layers(plot)
+
+            if (.self$confidence_interval && .self$type == "line") {
                 plot <- plot +
                     geom_ribbon(
                         aes(ymin = lower_confidence, ymax = upper_confidence),

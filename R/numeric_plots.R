@@ -56,6 +56,31 @@ numeric_plot <- setRefClass(
     "NumericPlot",
     contains = "GeneralPlot",
     methods = list(
+        add_default_layers = function(plot) {
+            plot <- plot +
+                coord_cartesian() +
+                expand_limits(y = 0) +
+                geom_path(na.rm = TRUE) +
+                geom_point(size = 2, shape = 3) +
+                scale_x_continuous(
+                    breaks = seq(
+                        .self$year_selection[1],
+                        .self$year_selection[2],
+                        by = 1
+                    )
+                ) +
+                theme(
+                    axis.text = element_text(size = 12),
+                    axis.text.x = element_text(size = 11, angle = -50),
+                    axis.title = element_text(size = 14, face = "bold"),
+                    legend.text = element_text(size = 12),
+                    legend.title = element_blank()
+                ) +
+                ylab(.self$fields[[.self$y_axis]][["label"]]) +
+                xlab(.self$fields[[.self$x_axis]][["label"]])
+
+            return(plot)
+        },
         get_y_scale_breaks = function(...) {
             if (length(.self$y_scale_limits) == 2) {
                 return(y_scale_breaks(..., limits = .self$y_scale_limits))
@@ -114,27 +139,9 @@ numeric_plot <- setRefClass(
             } else {
                 plot <- .self$initialize_ungrouped_plot(plot_data)
             }
-            plot <- plot +
-                coord_cartesian() +
-                expand_limits(y = 0) +
-                geom_path(na.rm = TRUE) +
-                geom_point(size = 2, shape = 3) +
-                scale_x_continuous(
-                    breaks = seq(
-                        .self$year_selection[1],
-                        .self$year_selection[2],
-                        by = 1
-                    )
-                ) +
-                theme(
-                    axis.text = element_text(size = 12),
-                    axis.text.x = element_text(size = 11, angle = -50),
-                    axis.title = element_text(size = 14, face = "bold"),
-                    legend.text = element_text(size = 12),
-                    legend.title = element_blank()
-                ) +
-                ylab(.self$fields[[.self$y_axis]][["label"]]) +
-                xlab(.self$fields[[.self$x_axis]][["label"]])
+
+            plot <- add_default_layers(plot)
+
             if (length(.self$y_scale_limits) == 2) {
                 plot <- plot + scale_y_continuous(
                     breaks = .self$get_y_scale_breaks, limits = .self$y_scale_limits
