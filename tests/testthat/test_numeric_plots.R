@@ -8,14 +8,31 @@ source("helpers.R")
 # Set up
 fields <- list(
   "year" = list("label" = "Survey Year"),
-  "meanincome" = list("label" = "Mean Income")
+  "meanincome" = list("label" = "Mean Income"),
+  "median" = list("label" = "Median Income")
 )
 year <- as.integer(c("2000", "2001", "2002", "2003"))
 meanincome <- c(1000, 2000, 3000, 1500)
 n <- c(5000, 5400, 4500, 5000)
 upper_confidence <- c(1100, 2100, 3200, 1600)
 lower_confidence <- c(900, 1800, 2900, 1000)
-input_table <- data.frame(year, meanincome, n, lower_confidence, upper_confidence)
+percentile_10 <- c(500, 500, 1000, 500)
+percentile_25 <- c(700, 1000, 2000, 1000)
+percentile_75 <- c(1500, 2500, 4000, 2000)
+percentile_90 <- c(2000, 3000, 5000, 3000)
+median <- c(1000, 2000, 3000, 1500)
+input_table <- data.frame(
+  year,
+  meanincome,
+  n,
+  lower_confidence,
+  upper_confidence,
+  percentile_10,
+  percentile_25,
+  percentile_75,
+  percentile_90,
+  median
+)
 
 plot_theme <- theme(
   axis.text = element_text(size = 12),
@@ -66,6 +83,42 @@ test_that("NumericPlot plotting.", {
       ),
       linetype = 2, alpha = .1
     )
+
+  result_plot <- result_plotting_object$plot()
+
+  expect_plots_equal(expected_plot, result_plot)
+})
+
+test_that("NumericPlot boxplot.", {
+  result_plotting_object <- soep.plots::numeric_plot(
+    fields = fields,
+    data = input_table,
+    x_axis = "year",
+    y_axis = "meanincome",
+  )
+  result_plotting_object$set_to_boxplot()
+  expected_plot <- ggplot(
+    input_table,
+    aes(
+      x = year,
+      y = meanincome,
+      ymin = percentile_10,
+      ymax = percentile_90,
+      lower = percentile_25,
+      middle = median,
+      upper = percentile_75,
+      group = year
+    )
+  ) +
+    geom_boxplot(stat = "identity") +
+    coord_cartesian() +
+    expand_limits(y = 0) +
+    expand_limits(y = 0) +
+    scale_x_continuous(breaks = input_table$year) +
+    scale_y_continuous(breaks = seq(0, max(input_table$percentile_90), by = 500)) +
+    plot_theme +
+    ylab("Mean Income") +
+    xlab("Survey Year")
 
   result_plot <- result_plotting_object$plot()
 
@@ -168,6 +221,85 @@ test_that("Test grouping", {
 
   result_plot <- result_plotting_object$plot()
   expect_plots_equal(expected_plot, result_plot)
+})
+
+
+test_that("Test boxplot grouping", {
+  year <- as.integer(c(
+    "2000",
+    "2001",
+    "2002",
+    "2003",
+    "2000",
+    "2001",
+    "2002",
+    "2003"
+  ))
+  meanincome <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
+  median <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
+  percentile_10 <- c(500, 500, 1000, NA, 500, 500, 1000, 500)
+  percentile_25 <- c(700, 1000, 2000, NA, 700, 1000, 2000, 1000)
+  percentile_75 <- c(1500, 2500, 4000, NA, 1500, 2500, 4000, 2000)
+  percentile_90 <- c(2000, 3000, 5000, NA, 2000, 3000, 5000, 3000)
+  random <- c(1, 2, 3, 4, 5, 6, 7, 8)
+  n <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
+  groups <- c("a", "a", "a", "a", "b", "b", "b", "b")
+  upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  lower_confidence <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  group_input_table <- data.frame(
+    year,
+    meanincome,
+    n,
+    groups,
+    lower_confidence,
+    upper_confidence,
+    percentile_10,
+    percentile_25,
+    percentile_75,
+    percentile_90,
+    median,
+    random
+  )
+  group_input_table <- group_input_table[complete.cases(group_input_table$meanincome), ]
+
+  result_plotting_object <- soep.plots::numeric_plot(
+    fields = fields,
+    data = group_input_table,
+    x_axis = "year",
+    y_axis = "median",
+    group_axis = c("groups")
+  )
+  result_plotting_object$set_to_boxplot()
+
+  group_input_table <- result_plotting_object$get_data()
+
+  expected_plot <-
+    ggplot(
+      group_input_table,
+      aes(
+        x = year,
+        y = median,
+        group = paste0(groups, year),
+        ymin = percentile_10,
+        ymax = percentile_90,
+        lower = percentile_25,
+        middle = median,
+        upper = percentile_75,
+        color = groups,
+        text = ""
+      )
+    ) +
+    geom_boxplot(stat = "identity") +
+    coord_cartesian() +
+    expand_limits(y = 0) +
+    scale_x_continuous(breaks = group_input_table$year) +
+    scale_y_continuous(breaks = seq(0, max(group_input_table$percentile_90), by = 500)) +
+    plot_theme +
+    ylab("Median Income") +
+    xlab("Survey Year")
+
+  result_plot <- result_plotting_object$plot()
+  expect_plots_equal(expected_plot, result_plot, debug = TRUE)
 })
 
 

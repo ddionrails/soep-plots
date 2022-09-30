@@ -42,6 +42,20 @@ tooltip_template <- paste0(
 )
 tooltip_template_with_grouping <- paste("%s", tooltip_template, sep = "<br/>")
 
+boxplot_tooltip_template <- paste0(
+    c(
+        "Jahr: %s",
+        "Erstes Quartil",
+        "Zweites Quartil",
+        "Median: %1.2f",
+        "N: %s"
+    ),
+    collapse = "<br/>"
+)
+add_group_to_template <- function(template) {
+    return(paste("%s", template, sep = "<br/>"))
+}
+
 #' @export numeric_plot
 #' @exportClass NumericPlot
 #' @title NumericPlot
@@ -60,8 +74,6 @@ numeric_plot <- setRefClass(
             plot <- plot +
                 coord_cartesian() +
                 expand_limits(y = 0) +
-                geom_path(na.rm = TRUE) +
-                geom_point(size = 2, shape = 3) +
                 scale_x_continuous(
                     breaks = seq(
                         .self$year_selection[1],
@@ -87,6 +99,14 @@ numeric_plot <- setRefClass(
             }
             return(y_scale_breaks(...))
         },
+        set_to_boxplot = function(...) {
+            "Set type of plot returned to a barchart"
+            .self$type <- "boxplot"
+        },
+        set_to_line = function(...) {
+            "Set type of plot returned to a barchart"
+            .self$type <- "line"
+        },
         set_y_scale_limits = function(..., y_scale_limits) {
             "Set y scale upper and lower limit."
             if (length(year_range) == 2) {
@@ -102,7 +122,7 @@ numeric_plot <- setRefClass(
                     group = merged_group_name,
                     color = merged_group_name,
                     text = sprintf(
-                        tooltip_template_with_grouping,
+                        add_group_to_template(tooltip_template),
                         merged_group_name,
                         !!sym(.self$x_axis),
                         !!sym(.self$y_axis),
@@ -111,7 +131,61 @@ numeric_plot <- setRefClass(
                         lower_confidence
                     )
                 )
-            )
+            ) +
+                geom_path(na.rm = TRUE) +
+                geom_point(size = 2, shape = 3)
+            return(plot)
+        },
+        initialize_grouped_boxplot = function(plot_data) {
+            plot <- ggplot(
+                plot_data,
+                aes(
+                    x = !!sym(.self$x_axis),
+                    y = !!sym(.self$y_axis),
+                    group = paste0(merged_group_name, year),
+                    ymin = percentile_10,
+                    ymax = percentile_90,
+                    lower = percentile_25,
+                    middle = median,
+                    upper = percentile_75,
+                    color = merged_group_name,
+                    text = sprintf(
+                        add_group_to_template(boxplot_tooltip_template),
+                        merged_group_name,
+                        !!sym(.self$x_axis),
+                        !!sym(.self$y_axis),
+                        n,
+                        upper_confidence,
+                        lower_confidence
+                    )
+                )
+            ) +
+                geom_boxplot(stat = "identity")
+            return(plot)
+        },
+        initialize_ungrouped_boxplot = function(plot_data) {
+            plot <- ggplot(
+                plot_data,
+                aes(
+                    x = !!sym(.self$x_axis),
+                    y = !!sym(.self$y_axis),
+                    min = percentile_10,
+                    max = percentile_90,
+                    lower = percentile_25,
+                    middle = median,
+                    upper = percentile_75,
+                    group = !!sym(.self$y_axis),
+                    text = sprintf(
+                        boxplot_tooltip_template,
+                        !!sym(.self$x_axis),
+                        !!sym(.self$y_axis),
+                        n,
+                        upper_confidence,
+                        lower_confidence
+                    )
+                )
+            ) +
+                geom_boxplot(stat = "identity")
             return(plot)
         },
         initialize_ungrouped_plot = function(plot_data) {
@@ -128,19 +202,31 @@ numeric_plot <- setRefClass(
                         lower_confidence
                     )
                 )
-            )
+            ) +
+                geom_path(na.rm = TRUE) +
+                geom_point(size = 2, shape = 3)
             return(plot)
         },
         plot = function(...) {
             "Create a numerical plot from data and settings."
             plot_data <- .self$get_data()
             if ("merged_group_name" %in% names(plot_data)) {
-                plot <- .self$initialize_grouped_plot(plot_data)
+                if (.self$type == "line") {
+                    plot <- .self$initialize_grouped_plot(plot_data)
+                }
+                if (.self$type == "boxplot") {
+                    plot <- .self$initialize_grouped_boxplot(plot_data)
+                }
             } else {
-                plot <- .self$initialize_ungrouped_plot(plot_data)
+                if (.self$type == "line") {
+                    plot <- .self$initialize_ungrouped_plot(plot_data)
+                }
+                if (.self$type == "boxplot") {
+                    plot <- .self$initialize_ungrouped_boxplot(plot_data)
+                }
             }
 
-            plot <- add_default_layers(plot)
+            plot <- .self$add_default_layers(plot)
 
             if (length(.self$y_scale_limits) == 2) {
                 plot <- plot + scale_y_continuous(

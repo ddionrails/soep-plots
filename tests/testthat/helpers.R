@@ -7,7 +7,7 @@
 #' expected <- ggplot(dataframe)
 #' result <- test_function() # Returns a ggplot object.
 #' expected_plots_equal(expected, result)
-expect_plots_equal <- function(expected, result) {
+expect_plots_equal <- function(expected, result, debug = FALSE) {
     test_id <- sample(1:10000, 1)
     expected_file <- paste0(test_id, "baseline.png")
     compare_file <- paste0(test_id, "compare.png")
@@ -18,6 +18,9 @@ expect_plots_equal <- function(expected, result) {
     files_match <- (
         tools::md5sum(files = expected_file) == tools::md5sum(files = compare_file)
     )
+    if (debug) {
+        browser()
+    }
     failed_test_files_path <- file.path(
         tools::file_path_as_absolute("../"),
         "failed_test_files"
