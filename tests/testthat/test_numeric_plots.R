@@ -292,14 +292,15 @@ test_that("Test boxplot grouping", {
     geom_boxplot(stat = "identity") +
     coord_cartesian() +
     expand_limits(y = 0) +
-    scale_x_continuous(breaks = group_input_table$year) +
+    scale_x_continuous(breaks = seq(2000, 2003, by = 1)) +
     scale_y_continuous(breaks = seq(0, max(group_input_table$percentile_90), by = 500)) +
     plot_theme +
     ylab("Median Income") +
     xlab("Survey Year")
 
+  result_plotting_object$disable_confidence_interval()
   result_plot <- result_plotting_object$plot()
-  expect_plots_equal(expected_plot, result_plot, debug = TRUE)
+  expect_plots_equal(expected_plot, result_plot)
 })
 
 
