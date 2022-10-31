@@ -8,14 +8,16 @@ source("helpers.R")
 # Set up
 fields <- list(
   "year" = list("label" = "Survey Year"),
-  "meanincome" = list("label" = "Mean Income"),
+  "mean" = list("label" = "Mean Income"),
   "median" = list("label" = "Median Income")
 )
 year <- as.integer(c("2000", "2001", "2002", "2003"))
-meanincome <- c(1000, 2000, 3000, 1500)
+mean <- c(1000, 2000, 3000, 1500)
 n <- c(5000, 5400, 4500, 5000)
-upper_confidence <- c(1100, 2100, 3200, 1600)
-lower_confidence <- c(900, 1800, 2900, 1000)
+upper_confidence_mean <- c(1100, 2100, 3200, 1600)
+upper_confidence_median <- c(1100, 2100, 3200, 1600)
+lower_confidence_mean <- c(900, 1800, 2900, 1000)
+lower_confidence_median <- c(900, 1800, 2900, 1000)
 percentile_10 <- c(500, 500, 1000, 500)
 percentile_25 <- c(700, 1000, 2000, 1000)
 percentile_75 <- c(1500, 2500, 4000, 2000)
@@ -23,10 +25,12 @@ percentile_90 <- c(2000, 3000, 5000, 3000)
 median <- c(1000, 2000, 3000, 1500)
 input_table <- data.frame(
   year,
-  meanincome,
+  mean,
   n,
-  lower_confidence,
-  upper_confidence,
+  lower_confidence_mean,
+  lower_confidence_median,
+  upper_confidence_mean,
+  upper_confidence_median,
   percentile_10,
   percentile_25,
   percentile_75,
@@ -48,7 +52,7 @@ test_that("NumericPlot Object initialization", {
     fields = fields,
     data = input_table,
     x_axis = "year",
-    y_axis = "meanincome"
+    y_axis = "mean"
   )
   expect_true(inherits(result_plotting_object, "NumericPlot"))
   expect_type(result_plotting_object$fields, "list")
@@ -63,23 +67,23 @@ test_that("NumericPlot plotting.", {
     fields = fields,
     data = input_table,
     x_axis = "year",
-    y_axis = "meanincome",
+    y_axis = "mean",
   )
   expected_plot <- ggplot(
     input_table,
-    aes(x = year, y = meanincome, group = "")
+    aes(x = year, y = mean, group = "")
   ) +
     geom_path() +
     geom_point(size = 2, shape = 3) +
     expand_limits(y = 0) +
     scale_x_continuous(breaks = input_table$year) +
-    scale_y_continuous(breaks = seq(0, max(input_table$meanincome), by = 500)) +
+    scale_y_continuous(breaks = seq(0, max(input_table$mean), by = 500)) +
     plot_theme +
     ylab("Mean Income") +
     xlab("Survey Year") +
     geom_ribbon(
       aes(
-        ymin = lower_confidence, ymax = upper_confidence
+        ymin = lower_confidence_mean, ymax = upper_confidence_mean
       ),
       linetype = 2, alpha = .1
     )
@@ -94,14 +98,14 @@ test_that("NumericPlot boxplot.", {
     fields = fields,
     data = input_table,
     x_axis = "year",
-    y_axis = "meanincome",
+    y_axis = "mean",
   )
   result_plotting_object$set_to_boxplot()
   expected_plot <- ggplot(
     input_table,
     aes(
       x = year,
-      y = meanincome,
+      y = mean,
       ymin = percentile_10,
       ymax = percentile_90,
       lower = percentile_25,
@@ -130,12 +134,12 @@ test_that("Test set_y_scale_limit.", {
     fields = fields,
     data = input_table,
     x_axis = "year",
-    y_axis = "meanincome",
+    y_axis = "mean",
   )
   result_plotting_object$set_y_scale_limits(y_scale_limits = c(1, 4000))
   expected_plot <- ggplot(
     input_table,
-    aes(x = year, y = meanincome, group = "")
+    aes(x = year, y = mean, group = "")
   ) +
     geom_path() +
     geom_point(size = 2, shape = 3) +
@@ -147,7 +151,7 @@ test_that("Test set_y_scale_limit.", {
     xlab("Survey Year") +
     geom_ribbon(
       aes(
-        ymin = lower_confidence, ymax = upper_confidence
+        ymin = lower_confidence_mean, ymax = upper_confidence_mean
       ),
       linetype = 2, alpha = .1
     )
@@ -169,32 +173,32 @@ test_that("Test grouping", {
     "2002",
     "2003"
   ))
-  meanincome <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
+  mean <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
   n <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
   groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
-  upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
-  lower_confidence <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  upper_confidence_mean <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  lower_confidence_mean <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
   group_input_table <- data.frame(
     year,
-    meanincome,
+    mean,
     n,
     groups,
-    lower_confidence,
-    upper_confidence
+    lower_confidence_mean,
+    upper_confidence_mean
   )
-  group_input_table <- group_input_table[complete.cases(group_input_table$meanincome), ]
+  group_input_table <- group_input_table[complete.cases(group_input_table$mean), ]
 
   result_plotting_object <- soep.plots::numeric_plot(
     fields = fields,
     data = group_input_table,
     x_axis = "year",
-    y_axis = "meanincome",
+    y_axis = "mean",
     group_axis = c("groups")
   )
 
   expected_plot <- ggplot(
     group_input_table,
-    aes(x = year, y = meanincome, group = groups, color = groups)
+    aes(x = year, y = mean, group = groups, color = groups)
   ) +
     geom_path() +
     geom_point(size = 2, shape = 3) +
@@ -206,15 +210,15 @@ test_that("Test grouping", {
       )
     ) +
     scale_y_continuous(
-      breaks = seq(0, max(group_input_table$meanincome, na.rm = TRUE), by = 500)
+      breaks = seq(0, max(group_input_table$mean, na.rm = TRUE), by = 500)
     ) +
     plot_theme +
     ylab("Mean Income") +
     xlab("Survey Year") +
     geom_ribbon(
       aes_string(
-        ymin = "lower_confidence",
-        ymax = "upper_confidence"
+        ymin = "lower_confidence_mean",
+        ymax = "upper_confidence_mean"
       ),
       linetype = 2, alpha = .1
     )
@@ -235,7 +239,7 @@ test_that("Test boxplot grouping", {
     "2002",
     "2003"
   ))
-  meanincome <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
+  mean <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
   median <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
   percentile_10 <- c(500, 500, 1000, NA, 500, 500, 1000, 500)
   percentile_25 <- c(700, 1000, 2000, NA, 700, 1000, 2000, 1000)
@@ -244,15 +248,15 @@ test_that("Test boxplot grouping", {
   random <- c(1, 2, 3, 4, 5, 6, 7, 8)
   n <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
   groups <- c("a", "a", "a", "a", "b", "b", "b", "b")
-  upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
-  lower_confidence <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  upper_confidence_median <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  lower_confidence_median <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
   group_input_table <- data.frame(
     year,
-    meanincome,
+    mean,
     n,
     groups,
-    lower_confidence,
-    upper_confidence,
+    lower_confidence_median,
+    upper_confidence_median,
     percentile_10,
     percentile_25,
     percentile_75,
@@ -260,7 +264,7 @@ test_that("Test boxplot grouping", {
     median,
     random
   )
-  group_input_table <- group_input_table[complete.cases(group_input_table$meanincome), ]
+  group_input_table <- group_input_table[complete.cases(group_input_table$mean), ]
 
   result_plotting_object <- soep.plots::numeric_plot(
     fields = fields,
@@ -315,28 +319,28 @@ test_that("Test several groups", {
     "2002",
     "2003"
   ))
-  meanincome <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
+  mean <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
   n <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
   first_dimension <- c("a", "a", "a", "a", "b", "b", "b", "b")
   second_dimension <- c("ba", "ba", "ba", "ba", "ba", "ab", "ab", "ab")
   combined_dimension <- c("a ba", "a ba", "a ba", "a ba", "b ba", "b ab", "b ab", "b ab")
-  upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
-  lower_confidence <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  upper_confidence_mean <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  lower_confidence_mean <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
   group_input_table <- data.frame(
     year,
-    meanincome,
+    mean,
     n,
     first_dimension,
     second_dimension,
-    lower_confidence,
-    upper_confidence
+    lower_confidence_mean,
+    upper_confidence_mean
   )
 
   result_plotting_object <- soep.plots::numeric_plot(
     fields = fields,
     data = group_input_table,
     x_axis = "year",
-    y_axis = "meanincome",
+    y_axis = "mean",
     group_axis = c("first_dimension", "second_dimension")
   )
 
@@ -349,7 +353,7 @@ test_that("Test several groups", {
 
   expected_plot <- ggplot(
     group_input_table,
-    aes(x = year, y = meanincome, group = groups, color = groups)
+    aes(x = year, y = mean, group = groups, color = groups)
   ) +
     geom_path() +
     geom_point(size = 2, shape = 3) +
@@ -362,15 +366,15 @@ test_that("Test several groups", {
       )
     ) +
     scale_y_continuous(
-      breaks = seq(0, max(group_input_table$meanincome), by = 500)
+      breaks = seq(0, max(group_input_table$mean), by = 500)
     ) +
     plot_theme +
     ylab("Mean Income") +
     xlab("Survey Year") +
     geom_ribbon(
       aes_string(
-        ymin = "lower_confidence",
-        ymax = "upper_confidence"
+        ymin = "lower_confidence_mean",
+        ymax = "upper_confidence_mean"
       ),
       linetype = 2, alpha = .1
     )
@@ -385,37 +389,37 @@ test_that("Test several groups", {
 test_that("Test confidence interval", {
   fields_ <- list(
     "year" = list("label" = "Survey Year"),
-    "meanincome" = list("label" = "Mean Income")
+    "mean" = list("label" = "Mean Income")
   )
 
   year <- as.integer(
     c("2000", "2001", "2002", "2003", "2000", "2001", "2002", "2003")
   )
-  meanincome <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
+  mean <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
   n <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
   groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
-  upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
-  lower_confidence <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  upper_confidence_mean <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  lower_confidence_mean <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
   ci_input_table <- data.frame(
     year,
-    meanincome,
+    mean,
     n,
     groups,
-    lower_confidence,
-    upper_confidence
+    lower_confidence_mean,
+    upper_confidence_mean
   )
 
   result_plotting_object <- soep.plots::numeric_plot(
     fields = fields_,
     data = ci_input_table,
     x_axis = "year",
-    y_axis = "meanincome",
+    y_axis = "mean",
     group_axis = c("groups")
   )
 
   expected_plot <- ggplot(
     ci_input_table,
-    aes(x = year, y = meanincome, group = groups, color = groups)
+    aes(x = year, y = mean, group = groups, color = groups)
   ) +
     geom_path() +
     geom_point(size = 2, shape = 3) +
@@ -426,7 +430,7 @@ test_that("Test confidence interval", {
     scale_y_continuous(
       breaks = seq(
         0,
-        max(ci_input_table$meanincome),
+        max(ci_input_table$mean),
         by = 500
       )
     ) +
@@ -437,8 +441,8 @@ test_that("Test confidence interval", {
   expected_ci_plot <- expected_plot +
     geom_ribbon(
       aes_string(
-        ymin = "lower_confidence",
-        ymax = "upper_confidence"
+        ymin = "lower_confidence_mean",
+        ymax = "upper_confidence_mean"
       ),
       linetype = 2, alpha = .1
     )
@@ -461,24 +465,24 @@ test_that("Year Range", {
     fields = fields,
     data = input_table,
     x_axis = "year",
-    y_axis = "meanincome"
+    y_axis = "mean"
   )
   subset_table <- subset(input_table, year %in% seq(2000, 2002))
   expected_plot <- ggplot(
     subset_table,
-    aes(x = year, y = meanincome, group = "")
+    aes(x = year, y = mean, group = "")
   ) +
     geom_path() +
     geom_point(size = 2, shape = 3) +
     expand_limits(y = 0) +
     scale_x_continuous(breaks = seq(2000, 2002)) +
-    scale_y_continuous(breaks = seq(0, max(subset_table$meanincome), by = 500)) +
+    scale_y_continuous(breaks = seq(0, max(subset_table$mean), by = 500)) +
     plot_theme +
     ylab("Mean Income") +
     xlab("Survey Year") +
     geom_ribbon(
       aes(
-        ymin = lower_confidence, ymax = upper_confidence
+        ymin = lower_confidence_mean, ymax = upper_confidence_mean
       ),
       linetype = 2, alpha = .1
     )

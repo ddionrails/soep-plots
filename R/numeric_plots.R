@@ -45,10 +45,12 @@ tooltip_template_with_grouping <- paste("%s", tooltip_template, sep = "<br/>")
 boxplot_tooltip_template <- paste0(
     c(
         "Jahr: %s",
-        "Erstes Quartil",
-        "Zweites Quartil",
+        "Erstes Quartil: %1.2f",
         "Median: %1.2f",
-        "N: %s"
+        "Drittes Quartil: %1.2f",
+        "N: %s",
+        "Obere Konfidenz: %1.2f",
+        "Untere Konfidenz: %1.2f"
     ),
     collapse = "<br/>"
 )
@@ -127,8 +129,8 @@ numeric_plot <- setRefClass(
                         !!sym(.self$x_axis),
                         !!sym(.self$y_axis),
                         n,
-                        upper_confidence,
-                        lower_confidence
+                        !!sym(paste0("upper_confidence_", .self$y_axis)),
+                        !!sym(paste0("lower_confidence_", .self$y_axis))
                     )
                 )
             ) +
@@ -153,10 +155,12 @@ numeric_plot <- setRefClass(
                         add_group_to_template(boxplot_tooltip_template),
                         merged_group_name,
                         !!sym(.self$x_axis),
-                        !!sym(.self$y_axis),
+                        percentile_25,
+                        median,
+                        percentile_75,
                         n,
-                        upper_confidence,
-                        lower_confidence
+                        lower_confidence_median,
+                        upper_confidence_median
                     )
                 )
             ) +
@@ -178,10 +182,12 @@ numeric_plot <- setRefClass(
                     text = sprintf(
                         boxplot_tooltip_template,
                         !!sym(.self$x_axis),
-                        !!sym(.self$y_axis),
+                        percentile_25,
+                        median,
+                        percentile_75,
                         n,
-                        upper_confidence,
-                        lower_confidence
+                        lower_confidence_median,
+                        upper_confidence_median
                     )
                 )
             ) +
@@ -198,8 +204,8 @@ numeric_plot <- setRefClass(
                         !!sym(.self$x_axis),
                         !!sym(.self$y_axis),
                         n,
-                        upper_confidence,
-                        lower_confidence
+                        !!sym(paste0("upper_confidence_", .self$y_axis)),
+                        !!sym(paste0("lower_confidence_", .self$y_axis))
                     )
                 )
             ) +
@@ -238,12 +244,12 @@ numeric_plot <- setRefClass(
                 )
             }
 
-            if (.self$confidence_interval) {
+            if (.self$confidence_interval & .self$type == "line") {
                 plot <- plot +
                     geom_ribbon(
                         aes_string(
-                            ymin = "lower_confidence",
-                            ymax = "upper_confidence"
+                            ymin = paste0("lower_confidence_", .self$y_axis),
+                            ymax = paste0("upper_confidence_", .self$y_axis)
                         ),
                         linetype = 2, alpha = .1
                     )
