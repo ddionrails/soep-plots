@@ -228,6 +228,78 @@ test_that("Test grouping", {
 })
 
 
+test_that("Test median", {
+  year <- as.integer(c(
+    "2000",
+    "2001",
+    "2002",
+    "2003",
+    "2000",
+    "2001",
+    "2002",
+    "2003"
+  ))
+  mean <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
+  median <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
+  percentile_10 <- c(500, 500, 1000, NA, 500, 500, 1000, 500)
+  percentile_25 <- c(700, 1000, 2000, NA, 700, 1000, 2000, 1000)
+  percentile_75 <- c(1500, 2500, 4000, NA, 1500, 2500, 4000, 2000)
+  percentile_90 <- c(2000, 3000, 5000, NA, 2000, 3000, 5000, 3000)
+  random <- c(1, 2, 3, 4, 5, 6, 7, 8)
+  n <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
+  groups <- c("a", "a", "a", "a", "b", "b", "b", "b")
+  upper_confidence_median <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  lower_confidence_median <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  group_input_table <- data.frame(
+    year,
+    mean,
+    n,
+    groups,
+    lower_confidence_median,
+    upper_confidence_median,
+    percentile_10,
+    percentile_25,
+    percentile_75,
+    percentile_90,
+    median,
+    random
+  )
+  group_input_table <- group_input_table[complete.cases(group_input_table$mean), ]
+
+  result_plotting_object <- soep.plots::numeric_plot(
+    fields = fields,
+    data = input_table,
+    x_axis = "year",
+    y_axis = "median",
+  )
+
+  expected_plot <- ggplot(
+    input_table,
+    aes(x = year, y = mean, group = "")
+  ) +
+    geom_path() +
+    geom_point(size = 2, shape = 3) +
+    expand_limits(y = 0) +
+    scale_x_continuous(breaks = input_table$year) +
+    scale_y_continuous(breaks = seq(0, max(input_table$median), by = 500)) +
+    plot_theme +
+    ylab("Median Income") +
+    xlab("Survey Year") +
+    geom_ribbon(
+      aes(
+        ymin = lower_confidence_median, ymax = upper_confidence_median
+      ),
+      linetype = 2, alpha = .1
+    )
+
+  result_plot <- result_plotting_object$plot()
+
+
+  result_plot <- result_plotting_object$plot()
+  expect_plots_equal(expected_plot, result_plot)
+})
+
+
 test_that("Test boxplot grouping", {
   year <- as.integer(c(
     "2000",
