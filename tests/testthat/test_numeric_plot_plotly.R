@@ -109,16 +109,53 @@ test_grouping <- function() {
                 upper_confidence_mean
         )
         fig <- plot_ly(
-                group_input_table,
-                x = ~year,
-                y = ~mean,
+                data = group_input_table,
+                x = as.formula("~year"),
+                y = as.formula("~mean"),
+                # text = as.formula("~ sprintf('Jahr'n, breakd, groups)"),
                 type = "scatter",
-                mode = "lines+markers", linetype = ~groups, color = ~groups, marker = list(symbol = "diamond", size = 8, line = list(width = 2, color = "black"))
+                # text = as.formula("~ paste(n, \"<br>\", groups)"),
+                text = as.formula(
+                        paste(
+                                c(
+                                        "~",
+                                        "paste(",
+                                        paste(
+                                                "'N: '", "n", "'<br>'",
+                                                "'Untere Konfidenz: '",
+                                                "lower_confidence_mean",
+                                                "'<br>'",
+                                                "'Obere Konfidenz: '",
+                                                "upper_confidence_mean",
+                                                "'<br>'",
+                                                sep = ","
+                                        ),
+                                        ", sep='')"
+                                ),
+                                sep = "",
+                                collapse = ""
+                        )
+                ),
+                mode = "lines+markers",
+                linetype = ~groups,
+                color = ~groups,
+                marker = list(
+                        symbol = "diamond",
+                        size = 8,
+                        line = list(width = 2, color = "black")
+                ),
+                hovertemplate = paste(
+                        "<b>%{data.name}</b><br>",
+                        "Year: %{x}<br>",
+                        "Mean: %{y}<br>",
+                        "N: %{text}",
+                        sep = ""
+                )
         )
         fig <- layout(fig,
-                title = "The Effect of Vitamin C on Tooth Growth in Guinea Pigs by Supplement Type",
-                xaxis = list(title = "Dose in milligrams/day"),
-                yaxis = list(title = "Tooth length")
+                title = "Title",
+                xaxis = list(title = "xaxis Title"),
+                yaxis = list(title = "yaxis Title")
         )
         fig
 }
