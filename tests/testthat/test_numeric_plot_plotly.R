@@ -85,6 +85,25 @@ plotly_plot
 
 
 test_grouping <- function() {
+        xaxis <- list(
+                title = "",
+                showline = TRUE,
+                showgrid = FALSE,
+                showticklabels = TRUE,
+                linecolor = "rgb(204, 204, 204)",
+                linewidth = 2,
+                autotick = FALSE,
+                ticks = "outside",
+                tickcolor = "rgb(204, 204, 204)",
+                tickwidth = 2,
+                ticklen = 5,
+                tickfont = list(
+                        family = "Arial",
+                        size = 12,
+                        color = "rgb(82, 82, 82)"
+                )
+        )
+
         year <- as.integer(c(
                 "2000",
                 "2001",
@@ -154,8 +173,8 @@ test_grouping <- function() {
         )
         fig <- layout(fig,
                 title = "Title",
-                xaxis = list(title = "xaxis Title"),
-                yaxis = list(title = "yaxis Title")
+                xaxis = xaxis,
+                yaxis = list(range = c(0, 4000), title = "yaxis Title")
         )
         fig
 }

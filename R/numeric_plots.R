@@ -1,4 +1,4 @@
-#' @import ggplot2
+#' @import plotly
 #' @include plots.R
 
 #' Helper function to set y scale depending on values to display
@@ -23,17 +23,17 @@ y_scale_breaks <- function(column, limits = vector()) {
     if (maximum <= 10) {
         interval <- 1
     }
-    return(seq(
+    return(c(
         minimum,
         maximum,
-        by = interval
+        interval
     ))
 }
 
 tooltip_template <- paste0(
     c(
-        "Jahr: %s",
-        "Durchschnitt: %1.2f",
+        "Jahr: %{x}",
+        "Durchschnitt: %{y:1.2f}",
         "N: %s",
         "Obere Konfidenz: %1.2f",
         "Untere Konfidenz: %1.2f"
@@ -41,6 +41,47 @@ tooltip_template <- paste0(
     collapse = "<br/>"
 )
 tooltip_template_with_grouping <- paste("%s", tooltip_template, sep = "<br/>")
+
+get_xaxis_layout <- function(title) {
+    return(list(
+        title = title,
+        showline = TRUE,
+        showgrid = FALSE,
+        showticklabels = TRUE,
+        linecolor = "rgb(204, 204, 204)",
+        linewidth = 2,
+        autotick = FALSE,
+        ticks = "outside",
+        tickcolor = "rgb(204, 204, 204)",
+        tickwidth = 2,
+        ticklen = 5,
+        tickfont = list(
+            family = "Arial",
+            size = 12,
+            color = "rgb(82, 82, 82)"
+        )
+    ))
+}
+
+line_tooltip <- paste(
+    c(
+        "~",
+        "paste(",
+        paste(
+            "'N: '", "n", "'<br>'",
+            "'Untere Konfidenz: '",
+            "lower_confidence_mean",
+            "'<br>'",
+            "'Obere Konfidenz: '",
+            "upper_confidence_mean",
+            "'<br>'",
+            sep = ","
+        ),
+        ", sep='')"
+    ),
+    sep = "",
+    collapse = ""
+)
 
 boxplot_tooltip_template <- paste0(
     c(
@@ -116,26 +157,28 @@ numeric_plot <- setRefClass(
             }
         },
         initialize_grouped_plot = function(plot_data) {
-            plot <- ggplot(
+            plot <- plotly::plotly_plot(
                 plot_data,
-                aes(
-                    x = !!sym(.self$x_axis),
-                    y = !!sym(.self$y_axis),
-                    group = merged_group_name,
-                    color = merged_group_name,
-                    text = sprintf(
-                        add_group_to_template(tooltip_template),
-                        merged_group_name,
-                        !!sym(.self$x_axis),
-                        !!sym(.self$y_axis),
-                        n,
-                        !!sym(paste0("upper_confidence_", .self$y_axis)),
-                        !!sym(paste0("lower_confidence_", .self$y_axis))
-                    )
+                x = as.formula(paste0("~", .self$x_axis)),
+                y = as.formula(paste0("~", .self$y_axis)),
+                type = "scatter",
+                mode = "lines+markers",
+                linetype = ~merged_group_name,
+                color = ~merged_group_name,
+                marker = list(
+                    symbol = "diamond",
+                    size = 8,
+                    line = list(width = 2, color = "black")
+                ),
+                text = as.formula(line_tooltip),
+                hovertemplate = paste(
+                    "<b>%{data.name}</b>",
+                    "Year: %{x}",
+                    paste(.self$fields[[.self$y_axis]][["label"]], ": %{y}", sep = ""),
+                    "%{text}",
+                    sep = "<br>"
                 )
-            ) +
-                geom_path(na.rm = TRUE) +
-                geom_point(size = 2, shape = 3)
+            )
             return(plot)
         },
         initialize_grouped_boxplot = function(plot_data) {
@@ -195,22 +238,27 @@ numeric_plot <- setRefClass(
             return(plot)
         },
         initialize_ungrouped_plot = function(plot_data) {
-            plot <- ggplot(
+            plot <- plotly::plotly_plot(
                 plot_data,
-                aes(
-                    x = !!sym(.self$x_axis), y = !!sym(.self$y_axis), group = "",
-                    text = sprintf(
-                        tooltip_template,
-                        !!sym(.self$x_axis),
-                        !!sym(.self$y_axis),
-                        n,
-                        !!sym(paste0("upper_confidence_", .self$y_axis)),
-                        !!sym(paste0("lower_confidence_", .self$y_axis))
-                    )
+                x = as.formula(paste0("~", .self$x_axis)),
+                y = as.formula(paste0("~", .self$y_axis)),
+                type = "scatter",
+                mode = "lines+markers",
+                linetype = "solid",
+                color = "rgba(40,67,135, 1)",
+                marker = list(
+                    symbol = "diamond",
+                    size = 8,
+                    line = list(width = 2, color = "black")
+                ),
+                text = as.formula(line_tooltip),
+                hovertemplate = paste(
+                    "Year: %{x}",
+                    paste(.self$fields[[.self$y_axis]][["label"]], ": %{y}", sep = ""),
+                    "%{text}",
+                    sep = "<br>"
                 )
-            ) +
-                geom_path(na.rm = TRUE) +
-                geom_point(size = 2, shape = 3)
+            )
             return(plot)
         },
         plot = function(...) {
@@ -231,6 +279,16 @@ numeric_plot <- setRefClass(
                     plot <- .self$initialize_ungrouped_boxplot(plot_data)
                 }
             }
+            y_scale_breaks <- .self$get_y_scale_breaks()
+            plot <- layout(plot,
+                # title = "Title",
+                xaxis = get_xaxis_layout(.self$fields[[.self$x_axis]][["label"]]),
+                yaxis = list(
+                    title = .self$fields[[.self$y_axis]][["label"]],
+                    dtick = y_scale_breaks[3],
+                    range = y_scale_breaks[1:2]
+                )
+            )
 
             plot <- .self$add_default_layers(plot)
 
