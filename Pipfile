@@ -7,3 +7,5 @@ verify_ssl = true
 
 [packages]
 pre-commit = "*"
+kaleido = "*"
+plotly = "*"

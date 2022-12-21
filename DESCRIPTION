@@ -12,7 +12,7 @@ License: BSD 3-clause License + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Imports:
     ggplot2,
     methods
@@ -24,7 +24,8 @@ Suggests:
     languageserver,
     covr,
     devtools,
-    withr
+    withr,
+    processx
 Collate: 
     'plots.R'
     'categorical_plots.R'
