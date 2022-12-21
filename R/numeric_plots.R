@@ -14,11 +14,16 @@ y_scale_breaks <- function(column, limits = vector()) {
         minimum <- 0
     }
     interval <- 500
+    if (maximum >= 1000) {
+        maximum <- maximum + 499
+    }
     if (maximum < 1000) {
         interval <- 50
+        maximum <- maximum + 49
     }
     if (maximum < 100) {
         interval <- 5
+        maximum <- maximum + 4
     }
     if (maximum <= 10) {
         interval <- 1
@@ -113,34 +118,11 @@ numeric_plot <- setRefClass(
     "NumericPlot",
     contains = "GeneralPlot",
     methods = list(
-        add_default_layers = function(plot) {
-            plot <- plot +
-                coord_cartesian() +
-                expand_limits(y = 0) +
-                scale_x_continuous(
-                    breaks = seq(
-                        .self$year_selection[1],
-                        .self$year_selection[2],
-                        by = 1
-                    )
-                ) +
-                theme(
-                    axis.text = element_text(size = 12),
-                    axis.text.x = element_text(size = 11, angle = -50),
-                    axis.title = element_text(size = 14, face = "bold"),
-                    legend.text = element_text(size = 12),
-                    legend.title = element_blank()
-                ) +
-                ylab(.self$fields[[.self$y_axis]][["label"]]) +
-                xlab(.self$fields[[.self$x_axis]][["label"]])
-
-            return(plot)
-        },
-        get_y_scale_breaks = function(...) {
+        get_y_scale_breaks = function(column) {
             if (length(.self$y_scale_limits) == 2) {
-                return(y_scale_breaks(..., limits = .self$y_scale_limits))
+                return(y_scale_breaks(column, limits = .self$y_scale_limits))
             }
-            return(y_scale_breaks(...))
+            return(y_scale_breaks(column))
         },
         set_to_boxplot = function(...) {
             "Set type of plot returned to a barchart"
@@ -157,7 +139,7 @@ numeric_plot <- setRefClass(
             }
         },
         initialize_grouped_plot = function(plot_data) {
-            plot <- plotly::plotly_plot(
+            plot <- plotly::plot_ly(
                 plot_data,
                 x = as.formula(paste0("~", .self$x_axis)),
                 y = as.formula(paste0("~", .self$y_axis)),
@@ -182,63 +164,36 @@ numeric_plot <- setRefClass(
             return(plot)
         },
         initialize_grouped_boxplot = function(plot_data) {
-            plot <- ggplot(
-                plot_data,
-                aes(
-                    x = !!sym(.self$x_axis),
-                    y = !!sym(.self$y_axis),
-                    group = paste0(merged_group_name, year),
-                    ymin = percentile_10,
-                    ymax = percentile_90,
-                    lower = percentile_25,
-                    middle = median,
-                    upper = percentile_75,
-                    color = merged_group_name,
-                    text = sprintf(
-                        add_group_to_template(boxplot_tooltip_template),
-                        merged_group_name,
-                        !!sym(.self$x_axis),
-                        percentile_25,
-                        median,
-                        percentile_75,
-                        n,
-                        lower_confidence_median,
-                        upper_confidence_median
-                    )
-                )
-            ) +
-                geom_boxplot(stat = "identity")
+            plot <- plotly::plot_ly(
+                data = plot_data,
+                x = as.formula(paste0("~", .self$x_axis)),
+                y = as.formula(paste0("~", .self$y_axis)),
+                color = ~merged_group_name,
+                type = "box",
+                q1 = ~percentile_25,
+                median = ~median,
+                q3 = ~percentile_75,
+                lowerfence = ~percentile_10,
+                upperfence = ~percentile_90,
+            )
             return(plot)
         },
         initialize_ungrouped_boxplot = function(plot_data) {
-            plot <- ggplot(
-                plot_data,
-                aes(
-                    x = !!sym(.self$x_axis),
-                    y = !!sym(.self$y_axis),
-                    min = percentile_10,
-                    max = percentile_90,
-                    lower = percentile_25,
-                    middle = median,
-                    upper = percentile_75,
-                    group = !!sym(.self$y_axis),
-                    text = sprintf(
-                        boxplot_tooltip_template,
-                        !!sym(.self$x_axis),
-                        percentile_25,
-                        median,
-                        percentile_75,
-                        n,
-                        lower_confidence_median,
-                        upper_confidence_median
-                    )
-                )
-            ) +
-                geom_boxplot(stat = "identity")
+            plot <- plotly::plot_ly(
+                data = plot_data,
+                x = as.formula(paste0("~", .self$x_axis)),
+                y = as.formula(paste0("~", .self$y_axis)),
+                type = "box",
+                q1 = ~percentile_25,
+                median = ~median,
+                q3 = ~percentile_75,
+                lowerfence = ~percentile_10,
+                upperfence = ~percentile_90,
+            )
             return(plot)
         },
         initialize_ungrouped_plot = function(plot_data) {
-            plot <- plotly::plotly_plot(
+            plot <- plotly::plot_ly(
                 plot_data,
                 x = as.formula(paste0("~", .self$x_axis)),
                 y = as.formula(paste0("~", .self$y_axis)),
@@ -279,38 +234,52 @@ numeric_plot <- setRefClass(
                     plot <- .self$initialize_ungrouped_boxplot(plot_data)
                 }
             }
-            y_scale_breaks <- .self$get_y_scale_breaks()
-            plot <- layout(plot,
-                # title = "Title",
-                xaxis = get_xaxis_layout(.self$fields[[.self$x_axis]][["label"]]),
-                yaxis = list(
-                    title = .self$fields[[.self$y_axis]][["label"]],
-                    dtick = y_scale_breaks[3],
-                    range = y_scale_breaks[1:2]
-                )
+
+
+            scale_breaks <- .self$get_y_scale_breaks(
+                column = plot_data[[.self$y_axis]]
             )
-
-            plot <- .self$add_default_layers(plot)
-
             if (length(.self$y_scale_limits) == 2) {
-                plot <- plot + scale_y_continuous(
-                    breaks = .self$get_y_scale_breaks, limits = .self$y_scale_limits
+                plot <- layout(plot,
+                    # title = "Title",
+                    xaxis = get_xaxis_layout(.self$fields[[.self$x_axis]][["label"]]),
+                    yaxis = list(
+                        title = .self$fields[[.self$y_axis]][["label"]],
+                        dtick = scale_breaks[3],
+                        range = .self$y_scale_limits
+                    )
                 )
             } else {
-                plot <- plot + scale_y_continuous(
-                    breaks = .self$get_y_scale_breaks
+                plot <- layout(plot,
+                    # title = "Title",
+                    xaxis = get_xaxis_layout(.self$fields[[.self$x_axis]][["label"]]),
+                    yaxis = list(
+                        title = .self$fields[[.self$y_axis]][["label"]],
+                        dtick = scale_breaks[3],
+                        range = scale_breaks[1:2]
+                    )
                 )
             }
 
             if (.self$confidence_interval & .self$type == "line") {
-                plot <- plot +
-                    geom_ribbon(
-                        aes_string(
-                            ymin = paste0("lower_confidence_", .self$y_axis),
-                            ymax = paste0("upper_confidence_", .self$y_axis)
-                        ),
-                        linetype = 2, alpha = .1
-                    )
+                plot <- add_trace(
+                    plot,
+                    y = ~upper_confidence_mean,
+                    type = "scatter",
+                    mode = "lines",
+                    name = "Obere Konfidenz",
+                    line = list(color = "transparent")
+                )
+                plot <- plotly::add_trace(
+                    plot,
+                    y = as.formula(paste0("~lower_confidence_", .self$y_axis)),
+                    type = "scatter",
+                    mode = "lines",
+                    fill = "tonexty",
+                    fillcolor = "rgba(238, 238, 238, 1)",
+                    line = list(color = "transparent"),
+                    name = "Untere Konfidenz"
+                )
             }
 
 
