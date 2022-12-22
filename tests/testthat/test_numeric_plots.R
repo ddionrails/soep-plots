@@ -37,22 +37,45 @@ input_table <- data.frame(
   percentile_90,
   median
 )
+data_range <- list(0, 3499)
+default_color <- "rgb(252, 141, 98)"
+
+get_xaxis_layout <- function(title) {
+  return(list(
+    title = title,
+    showline = TRUE,
+    showgrid = FALSE,
+    showticklabels = TRUE,
+    linecolor = "rgb(204, 204, 204)",
+    linewidth = 2,
+    autotick = FALSE,
+    ticks = "outside",
+    tickcolor = "rgb(204, 204, 204)",
+    tickwidth = 2,
+    ticklen = 5,
+    tickfont = list(
+      family = "Arial",
+      size = 12,
+      color = "rgb(82, 82, 82)"
+    )
+  ))
+}
 
 
 
-# test_that("NumericPlot Object initialization", {
-#  result_plotting_object <- soep.plots::numeric_plot(
-#    fields = fields,
-#    data = input_table,
-#    x_axis = "year",
-#    y_axis = "mean"
-#  )
-#  expect_true(inherits(result_plotting_object, "NumericPlot"))
-#  expect_type(result_plotting_object$fields, "list")
-#  expect_identical(fields, result_plotting_object$fields)
-#  expect_true(is.data.frame(result_plotting_object$data))
-#  expect_identical(input_table, result_plotting_object$data)
-# })
+test_that("NumericPlot Object initialization", {
+  result_plotting_object <- soep.plots::numeric_plot(
+    fields = fields,
+    data = input_table,
+    x_axis = "year",
+    y_axis = "mean"
+  )
+  expect_true(inherits(result_plotting_object, "NumericPlot"))
+  expect_type(result_plotting_object$fields, "list")
+  expect_identical(fields, result_plotting_object$fields)
+  expect_true(is.data.frame(result_plotting_object$data))
+  expect_identical(input_table, result_plotting_object$data)
+})
 
 
 test_that("NumericPlot plotting.", {
@@ -63,13 +86,57 @@ test_that("NumericPlot plotting.", {
     y_axis = "mean",
   )
 
-  result_plotting_object$disable_confidence_interval()
 
   result_plot <- result_plotting_object$plot()
 
-  expected_plot <- plotly::plot_ly()
+  expected_plot <- plotly::plot_ly(
+    input_table,
+    y = ~upper_confidence_mean,
+    x = ~year,
+    type = "scatter",
+    mode = "lines",
+    name = "Obere Konfidenz",
+    line = list(color = "transparent"),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  )
+  expected_plot <- plotly::add_trace(
+    expected_plot,
+    y = ~lower_confidence_mean,
+    type = "scatter",
+    mode = "lines",
+    fill = "tonexty",
+    fillcolor = "rgba(238, 238, 238, 1)",
+    line = list(color = "transparent"),
+    name = "Untere Konfidenz",
+    showlegend = FALSE,
+    hoverinfo = "none"
+  )
 
-  expect_plotly_plots_equal(expected_plot, result_plot)
+  expected_plot <- plotly::add_trace(
+    expected_plot,
+    y = mean,
+    type = "scatter",
+    mode = "lines+markers",
+    linetype = "solid",
+    line = list(color = default_color),
+    color = default_color,
+    marker = list(
+      symbol = "diamond",
+      size = 8,
+      line = list(width = 2, color = "black")
+    )
+  )
+  expected_plot <- layout(expected_plot,
+    xaxis = get_xaxis_layout(fields[["year"]][["label"]]),
+    yaxis = list(
+      title = fields[["mean"]][["label"]],
+      dtick = 500,
+      range = data_range
+    )
+  )
+
+  expect_plotly_plots_equal(expected_plot, result_plot, debug = FALSE)
 })
 
 test_that("NumericPlot boxplot.", {

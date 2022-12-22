@@ -64,7 +64,8 @@ expect_plotly_plots_equal <- function(expected, result, debug = FALSE) {
         tools::md5sum(files = expected_file) == tools::md5sum(files = compare_file)
     )
     if (debug) {
-        browser()
+        print(expected)
+        print(result)
     }
     failed_test_files_path <- file.path(
         tools::file_path_as_absolute("../"),
