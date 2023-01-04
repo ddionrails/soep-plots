@@ -180,29 +180,58 @@ test_that("Test set_y_scale_limit.", {
     x_axis = "year",
     y_axis = "mean",
   )
-  result_plotting_object$set_y_scale_limits(y_scale_limits = c(1, 4000))
-  expected_plot <- ggplot(
-    input_table,
-    aes(x = year, y = mean, group = "")
-  ) +
-    geom_path() +
-    geom_point(size = 2, shape = 3) +
-    expand_limits(y = 0) +
-    scale_x_continuous(breaks = input_table$year) +
-    scale_y_continuous(breaks = seq(1, 4000, by = 500), limits = c(1, 4000)) +
-    plot_theme +
-    ylab("Mean Income") +
-    xlab("Survey Year") +
-    geom_ribbon(
-      aes(
-        ymin = lower_confidence_mean, ymax = upper_confidence_mean
-      ),
-      linetype = 2, alpha = .1
-    )
 
+  result_plotting_object$set_y_scale_limits(y_scale_limits = c(1, 4000))
+
+  expected_plot <- plotly::plot_ly(
+    input_table,
+    y = ~upper_confidence_mean,
+    x = ~year,
+    type = "scatter",
+    mode = "lines",
+    name = "Obere Konfidenz",
+    line = list(color = "transparent"),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  )
+  expected_plot <- plotly::add_trace(
+    expected_plot,
+    y = ~lower_confidence_mean,
+    type = "scatter",
+    mode = "lines",
+    fill = "tonexty",
+    fillcolor = "rgba(238, 238, 238, 1)",
+    line = list(color = "transparent"),
+    name = "Untere Konfidenz",
+    showlegend = FALSE,
+    hoverinfo = "none"
+  )
+
+  expected_plot <- plotly::add_trace(
+    expected_plot,
+    y = mean,
+    type = "scatter",
+    mode = "lines+markers",
+    linetype = "solid",
+    line = list(color = default_color),
+    color = default_color,
+    marker = list(
+      symbol = "diamond",
+      size = 8,
+      line = list(width = 2, color = "black")
+    )
+  )
+  expected_plot <- layout(expected_plot,
+    xaxis = get_xaxis_layout(fields[["year"]][["label"]]),
+    yaxis = list(
+      title = fields[["mean"]][["label"]],
+      dtick = 500,
+      range = c(1, 4000)
+    )
+  )
   result_plot <- result_plotting_object$plot()
 
-  expect_plots_equal(expected_plot, result_plot)
+  expect_plotly_plots_equal(expected_plot, result_plot)
 })
 
 
