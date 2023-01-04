@@ -166,8 +166,7 @@ numeric_plot <- setRefClass(
         initialize_grouped_boxplot = function(plot_data) {
             plot <- plotly::plot_ly(
                 data = plot_data,
-                x = as.formula(paste0("~", .self$x_axis)),
-                y = as.formula(paste0("~", .self$y_axis)),
+                x = as.formula(paste0("~factor(", .self$x_axis, ")")),
                 color = ~merged_group_name,
                 type = "box",
                 q1 = ~percentile_25,
@@ -181,15 +180,16 @@ numeric_plot <- setRefClass(
         initialize_ungrouped_boxplot = function(plot_data) {
             plot <- plotly::plot_ly(
                 data = plot_data,
-                x = as.formula(paste0("~", .self$x_axis)),
-                y = as.formula(paste0("~", .self$y_axis)),
+                x = as.formula(paste0("~factor(", .self$x_axis, ")")),
                 type = "box",
                 q1 = ~percentile_25,
                 median = ~median,
                 q3 = ~percentile_75,
                 lowerfence = ~percentile_10,
-                upperfence = ~percentile_90,
+                upperfence = ~percentile_90
             )
+
+
             return(plot)
         },
         initialize_ungrouped_plot = function(plot_data) {
@@ -259,7 +259,11 @@ numeric_plot <- setRefClass(
                     text = as.formula(line_tooltip),
                     hovertemplate = paste(
                         "Year: %{x}",
-                        paste(.self$fields[[.self$y_axis]][["label"]], ": %{y}", sep = ""),
+                        paste(
+                            .self$fields[[.self$y_axis]][["label"]],
+                            ": %{y}",
+                            sep = ""
+                        ),
                         "%{text}",
                         sep = "<br>"
                     )
@@ -288,10 +292,15 @@ numeric_plot <- setRefClass(
                 }
             }
 
-
-            scale_breaks <- .self$get_y_scale_breaks(
-                column = plot_data[[.self$y_axis]]
-            )
+            if (.self$type == "line") {
+                scale_breaks <- .self$get_y_scale_breaks(
+                    column = plot_data[[.self$y_axis]]
+                )
+            } else {
+                scale_breaks <- .self$get_y_scale_breaks(
+                    column = plot_data[["percentile_90"]]
+                )
+            }
             if (length(.self$y_scale_limits) == 2) {
                 plot <- layout(plot,
                     # title = "Title",

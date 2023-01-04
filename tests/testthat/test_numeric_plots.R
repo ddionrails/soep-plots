@@ -144,35 +144,33 @@ test_that("NumericPlot boxplot.", {
     fields = fields,
     data = input_table,
     x_axis = "year",
-    y_axis = "mean",
+    y_axis = "median",
   )
   result_plotting_object$set_to_boxplot()
-  expected_plot <- ggplot(
-    input_table,
-    aes(
-      x = year,
-      y = mean,
-      ymin = percentile_10,
-      ymax = percentile_90,
-      lower = percentile_25,
-      middle = median,
-      upper = percentile_75,
-      group = year
+  expected_plot <- plotly::plot_ly(
+    data = input_table,
+    x = ~ factor(year),
+    type = "box",
+    q1 = ~percentile_25,
+    q3 = ~percentile_75,
+    median = ~median,
+    lowerfence = ~percentile_10,
+    upperfence = ~percentile_90
+  )
+  expected_plot <- layout(expected_plot,
+    # title = "Title",
+    xaxis = get_xaxis_layout(fields[["year"]][["label"]]),
+    yaxis = list(
+      title = fields[["median"]][["label"]],
+      dtick = 500,
+      range = c(0, 5499)
     )
-  ) +
-    geom_boxplot(stat = "identity") +
-    coord_cartesian() +
-    expand_limits(y = 0) +
-    expand_limits(y = 0) +
-    scale_x_continuous(breaks = input_table$year) +
-    scale_y_continuous(breaks = seq(0, max(input_table$percentile_90), by = 500)) +
-    plot_theme +
-    ylab("Mean Income") +
-    xlab("Survey Year")
+  )
+
 
   result_plot <- result_plotting_object$plot()
 
-  expect_plots_equal(expected_plot, result_plot)
+  expect_plotly_plots_equal(expected_plot, result_plot)
 })
 
 test_that("Test set_y_scale_limit.", {
