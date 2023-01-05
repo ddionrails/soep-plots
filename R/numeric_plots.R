@@ -80,6 +80,7 @@ line_tooltip <- paste(
             "'Untere Konfidenz: '",
             "lower_confidence_mean",
             "'<br>'",
+            "'<extra></extra>'",
             sep = ","
         ),
         ", sep='')"
@@ -141,7 +142,7 @@ numeric_plot <- setRefClass(
         initialize_grouped_plot = function(plot_data) {
             plot <- plotly::plot_ly(
                 plot_data,
-                x = as.formula(paste0("~", .self$x_axis)),
+                x = as.formula(paste0("~factor(", .self$x_axis, ")")),
                 y = as.formula(paste0("~", .self$y_axis)),
                 type = "scatter",
                 mode = "lines+markers",
@@ -193,82 +194,33 @@ numeric_plot <- setRefClass(
             return(plot)
         },
         initialize_ungrouped_plot = function(plot_data) {
-            if (.self$confidence_interval & .self$type == "line") {
-                plot <- plotly::plot_ly(
-                    plot_data,
-                    y = as.formula(paste0("~upper_confidence_", .self$y_axis)),
-                    x = as.formula(paste0("~", .self$x_axis)),
-                    type = "scatter",
-                    mode = "lines",
-                    name = "Obere Konfidenz",
-                    line = list(color = "transparent"),
-                    showlegend = FALSE,
-                    hoverinfo = "none"
-                )
-                plot <- plotly::add_trace(
-                    plot,
-                    y = as.formula(paste0("~lower_confidence_", .self$y_axis)),
-                    type = "scatter",
-                    mode = "lines",
-                    fill = "tonexty",
-                    fillcolor = "rgba(238, 238, 238, 1)",
-                    line = list(color = "transparent"),
-                    name = "Untere Konfidenz",
-                    showlegend = FALSE,
-                    hoverinfo = "none"
-                )
-                plot <- plotly::add_trace(
-                    plot,
-                    y = as.formula(paste0("~", .self$y_axis)),
-                    title = .self$fields[[.self$y_axis]][["label"]],
-                    type = "scatter",
-                    mode = "lines+markers",
-                    line = list(color = "rgb(252, 141, 98)"),
-                    color = "rgb(252, 141, 98)",
-                    marker = list(
-                        symbol = "diamond",
-                        size = 8,
-                        line = list(width = 2, color = "black")
+            plot <- plotly::plot_ly(
+                plot_data,
+                y = as.formula(paste0("~", .self$y_axis)),
+                x = as.formula(paste0("~", .self$x_axis)),
+                type = "scatter",
+                mode = "lines+markers",
+                linetype = "solid",
+                fillcolor = "rgba(236, 236, 236, 0.5)",
+                line = list(color = "rgb(252, 141, 98)"),
+                color = "rgb(252, 141, 98)",
+                marker = list(
+                    symbol = "diamond",
+                    size = 8,
+                    line = list(width = 2, color = "black")
+                ),
+                text = as.formula(line_tooltip),
+                hovertemplate = paste(
+                    "Year: %{x}",
+                    paste(
+                        .self$fields[[.self$y_axis]][["label"]],
+                        ": %{y}",
+                        sep = ""
                     ),
-                    text = as.formula(line_tooltip),
-                    hovertemplate = paste(
-                        "Year: %{x}",
-                        paste(
-                            .self$fields[[.self$y_axis]][["label"]],
-                            ": %{y}",
-                            sep = ""
-                        ),
-                        "%{text}<extra></extra>",
-                        sep = "<br>"
-                    )
+                    "%{text}",
+                    sep = "<br>"
                 )
-            } else {
-                plot <- plotly::plot_ly()(
-                    plot_data,
-                    x = as.formula(paste0("~", .self$x_axis)),
-                    y = as.formula(paste0("~", .self$y_axis)),
-                    type = "scatter",
-                    mode = "lines+markers",
-                    linetype = "solid",
-                    color = "rgba(40,67,135, 1)",
-                    marker = list(
-                        symbol = "diamond",
-                        size = 8,
-                        line = list(width = 2, color = "black")
-                    ),
-                    text = as.formula(line_tooltip),
-                    hovertemplate = paste(
-                        "Year: %{x}",
-                        paste(
-                            .self$fields[[.self$y_axis]][["label"]],
-                            ": %{y}",
-                            sep = ""
-                        ),
-                        "%{text}",
-                        sep = "<br>"
-                    )
-                )
-            }
+            )
 
 
             return(plot)
@@ -291,6 +243,21 @@ numeric_plot <- setRefClass(
                     plot <- .self$initialize_ungrouped_boxplot(plot_data)
                 }
             }
+
+
+            if (.self$confidence_interval & .self$type == "line") {
+                plot <- plotly::add_ribbons(
+                    plot,
+                    ymin = as.formula(paste0("~lower_confidence_", .self$y_axis)),
+                    ymax = as.formula(paste0("~upper_confidence_", .self$y_axis)),
+                    line = list(color = "transparent"),
+                    marker = list(color = "transparent", line = list(width = 0)),
+                    showlegend = FALSE,
+                    hoverinfo = "none"
+                )
+            }
+
+
 
             if (.self$type == "line") {
                 scale_breaks <- .self$get_y_scale_breaks(

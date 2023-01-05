@@ -86,47 +86,35 @@ test_that("NumericPlot plotting.", {
     y_axis = "mean",
   )
 
-
-  result_plot <- result_plotting_object$plot()
-
   expected_plot <- plotly::plot_ly(
     input_table,
-    y = ~upper_confidence_mean,
+    y = ~mean,
     x = ~year,
-    type = "scatter",
-    mode = "lines",
-    name = "Obere Konfidenz",
-    line = list(color = "transparent"),
-    showlegend = FALSE,
-    hoverinfo = "none"
-  )
-  expected_plot <- plotly::add_trace(
-    expected_plot,
-    y = ~lower_confidence_mean,
-    type = "scatter",
-    mode = "lines",
-    fill = "tonexty",
-    fillcolor = "rgba(238, 238, 238, 1)",
-    line = list(color = "transparent"),
-    name = "Untere Konfidenz",
-    showlegend = FALSE,
-    hoverinfo = "none"
-  )
-
-  expected_plot <- plotly::add_trace(
-    expected_plot,
-    y = mean,
     type = "scatter",
     mode = "lines+markers",
     linetype = "solid",
+    fillcolor = "rgba(236, 236, 236, 0.5)",
     line = list(color = default_color),
     color = default_color,
     marker = list(
       symbol = "diamond",
       size = 8,
       line = list(width = 2, color = "black")
-    )
+    ),
+    text = "Some Text",
+    hovertemplate = "%{text}"
   )
+
+  expected_plot <- plotly::add_ribbons(
+    expected_plot,
+    ymin = ~lower_confidence_mean,
+    ymax = ~upper_confidence_mean,
+    line = list(color = "transparent"),
+    marker = list(color = "transparent", line = list(width = 0)),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  )
+
   expected_plot <- layout(expected_plot,
     xaxis = get_xaxis_layout(fields[["year"]][["label"]]),
     yaxis = list(
@@ -135,6 +123,7 @@ test_that("NumericPlot plotting.", {
       range = data_range
     )
   )
+  result_plot <- result_plotting_object$plot()
 
   expect_plotly_plots_equal(expected_plot, result_plot, debug = FALSE)
 })
@@ -185,41 +174,31 @@ test_that("Test set_y_scale_limit.", {
 
   expected_plot <- plotly::plot_ly(
     input_table,
-    y = ~upper_confidence_mean,
+    y = ~mean,
     x = ~year,
-    type = "scatter",
-    mode = "lines",
-    name = "Obere Konfidenz",
-    line = list(color = "transparent"),
-    showlegend = FALSE,
-    hoverinfo = "none"
-  )
-  expected_plot <- plotly::add_trace(
-    expected_plot,
-    y = ~lower_confidence_mean,
-    type = "scatter",
-    mode = "lines",
-    fill = "tonexty",
-    fillcolor = "rgba(238, 238, 238, 1)",
-    line = list(color = "transparent"),
-    name = "Untere Konfidenz",
-    showlegend = FALSE,
-    hoverinfo = "none"
-  )
-
-  expected_plot <- plotly::add_trace(
-    expected_plot,
-    y = mean,
     type = "scatter",
     mode = "lines+markers",
     linetype = "solid",
+    fillcolor = "rgba(236, 236, 236, 0.5)",
     line = list(color = default_color),
     color = default_color,
     marker = list(
       symbol = "diamond",
       size = 8,
       line = list(width = 2, color = "black")
-    )
+    ),
+    text = "Some Text",
+    hovertemplate = "%{text}"
+  )
+
+  expected_plot <- plotly::add_ribbons(
+    expected_plot,
+    ymin = ~lower_confidence_mean,
+    ymax = ~upper_confidence_mean,
+    line = list(color = "transparent"),
+    marker = list(color = "transparent", line = list(width = 0)),
+    showlegend = FALSE,
+    hoverinfo = "none"
   )
   expected_plot <- layout(expected_plot,
     xaxis = get_xaxis_layout(fields[["year"]][["label"]]),
@@ -234,8 +213,7 @@ test_that("Test set_y_scale_limit.", {
   expect_plotly_plots_equal(expected_plot, result_plot)
 })
 
-
-test_that("Test grouping", {
+get_group_input_table <- function() {
   year <- as.integer(c(
     "2000",
     "2001",
@@ -248,9 +226,9 @@ test_that("Test grouping", {
   ))
   mean <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
   n <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
-  groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
-  upper_confidence_mean <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
-  lower_confidence_mean <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  groups <- c("a", "a", "a", "a", "b", "b", "b", "b")
+  upper_confidence_mean <- c(1000, 2053, 3125, NA, 1297, 1894, 3136, 1637)
+  lower_confidence_mean <- c(894, 1903, 2776, NA, 1136, 1772, 3122, 1605)
   group_input_table <- data.frame(
     year,
     mean,
@@ -260,6 +238,12 @@ test_that("Test grouping", {
     upper_confidence_mean
   )
   group_input_table <- group_input_table[complete.cases(group_input_table$mean), ]
+  return(group_input_table)
+}
+
+
+test_that("Test grouping", {
+  group_input_table <- get_group_input_table()
 
   result_plotting_object <- soep.plots::numeric_plot(
     fields = fields,
@@ -269,35 +253,42 @@ test_that("Test grouping", {
     group_axis = c("groups")
   )
 
-  expected_plot <- ggplot(
+  expected_plot <- plotly::plot_ly(
     group_input_table,
-    aes(x = year, y = mean, group = groups, color = groups)
-  ) +
-    geom_path() +
-    geom_point(size = 2, shape = 3) +
-    expand_limits(y = 0) +
-    scale_x_continuous(
-      breaks = seq(
-        min(group_input_table$year), max(group_input_table$year),
-        by = 1
-      )
-    ) +
-    scale_y_continuous(
-      breaks = seq(0, max(group_input_table$mean, na.rm = TRUE), by = 500)
-    ) +
-    plot_theme +
-    ylab("Mean Income") +
-    xlab("Survey Year") +
-    geom_ribbon(
-      aes_string(
-        ymin = "lower_confidence_mean",
-        ymax = "upper_confidence_mean"
-      ),
-      linetype = 2, alpha = .1
+    y = ~mean,
+    x = ~year,
+    type = "scatter",
+    mode = "lines+markers",
+    linetype = ~groups,
+    color = ~groups,
+    line = list(color = ~groups),
+    marker = list(
+      symbol = "diamond",
+      size = 8,
+      line = list(width = 2, color = "black")
     )
+  )
+  expected_plot <- plotly::add_ribbons(
+    expected_plot,
+    ymin = ~lower_confidence_mean,
+    ymax = ~upper_confidence_mean,
+    line = list(color = "transparent"),
+    marker = list(color = "transparent", line = list(width = 0)),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  )
+  expected_plot <- layout(expected_plot,
+    xaxis = get_xaxis_layout(fields[["year"]][["label"]]),
+    yaxis = list(
+      title = fields[["mean"]][["label"]],
+      dtick = 500,
+      range = c(0, max(group_input_table[["mean"]], na.rm = TRUE) + 499)
+    )
+  )
+  ########################
 
   result_plot <- result_plotting_object$plot()
-  expect_plots_equal(expected_plot, result_plot)
+  expect_plotly_plots_equal(expected_plot, result_plot, debug = FALSE)
 })
 
 
