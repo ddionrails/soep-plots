@@ -147,6 +147,7 @@ numeric_plot <- setRefClass(
                 type = "scatter",
                 mode = "lines+markers",
                 linetype = ~merged_group_name,
+                legendgroup = ~merged_group_name,
                 color = ~merged_group_name,
                 marker = list(
                     symbol = "diamond",
@@ -248,6 +249,7 @@ numeric_plot <- setRefClass(
             if (.self$confidence_interval & .self$type == "line") {
                 plot <- plotly::add_ribbons(
                     plot,
+                    legendgroup = ~merged_group_name,
                     ymin = as.formula(paste0("~lower_confidence_", .self$y_axis)),
                     ymax = as.formula(paste0("~upper_confidence_", .self$y_axis)),
                     line = list(color = "transparent"),
