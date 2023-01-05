@@ -5,38 +5,46 @@ library(soep.plots)
 
 source("helpers.R")
 
+options(warn = -1)
+
 # Set up
 fields <- list(
   "year" = list("label" = "Survey Year"),
   "mean" = list("label" = "Mean Income"),
   "median" = list("label" = "Median Income")
 )
-year <- as.integer(c("2000", "2001", "2002", "2003"))
-mean <- c(1000, 2000, 3000, 1500)
-n <- c(5000, 5400, 4500, 5000)
-upper_confidence_mean <- c(1100, 2100, 3200, 1600)
-upper_confidence_median <- c(1100, 2100, 3200, 1600)
-lower_confidence_mean <- c(900, 1800, 2900, 1000)
-lower_confidence_median <- c(900, 1800, 2900, 1000)
-percentile_10 <- c(500, 500, 1000, 500)
-percentile_25 <- c(700, 1000, 2000, 1000)
-percentile_75 <- c(1500, 2500, 4000, 2000)
-percentile_90 <- c(2000, 3000, 5000, 3000)
-median <- c(1000, 2000, 3000, 1500)
-input_table <- data.frame(
-  year,
-  mean,
-  n,
-  lower_confidence_mean,
-  lower_confidence_median,
-  upper_confidence_mean,
-  upper_confidence_median,
-  percentile_10,
-  percentile_25,
-  percentile_75,
-  percentile_90,
-  median
-)
+create_input_table <- function() {
+  year <- as.integer(c("2000", "2001", "2002", "2003"))
+  mean <- c(1000, 2000, 3000, 1500)
+  n <- c(5000, 5400, 4500, 5000)
+  upper_confidence_mean <- c(1100, 2100, 3200, 1600)
+  upper_confidence_median <- c(1100, 2100, 3200, 1600)
+  lower_confidence_mean <- c(900, 1800, 2900, 1000)
+  lower_confidence_median <- c(900, 1800, 2900, 1000)
+  percentile_10 <- c(500, 500, 1000, 500)
+  percentile_25 <- c(700, 1000, 2000, 1000)
+  percentile_75 <- c(1500, 2500, 4000, 2000)
+  percentile_90 <- c(2000, 3000, 5000, 3000)
+  median <- c(1000, 2000, 3000, 1500)
+  input_table <- data.frame(
+    year,
+    mean,
+    n,
+    lower_confidence_mean,
+    lower_confidence_median,
+    upper_confidence_mean,
+    upper_confidence_median,
+    percentile_10,
+    percentile_25,
+    percentile_75,
+    percentile_90,
+    median
+  )
+  return(input_table)
+}
+
+input_table <- create_input_table()
+
 data_range <- list(0, 3499)
 default_color <- "rgb(252, 141, 98)"
 
@@ -225,17 +233,33 @@ get_group_input_table <- function() {
     "2003"
   ))
   mean <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
+  median <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
+  percentile_10 <- c(500, 500, 1000, NA, 500, 500, 1000, 500)
+  percentile_25 <- c(700, 1000, 2000, NA, 700, 1000, 2000, 1000)
+  percentile_75 <- c(1500, 2500, 4000, NA, 1500, 2500, 4000, 2000)
+  percentile_90 <- c(2000, 3000, 5000, NA, 2000, 3000, 5000, 3000)
+  random <- c(1, 2, 3, 4, 5, 6, 7, 8)
   n <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
   groups <- c("a", "a", "a", "a", "b", "b", "b", "b")
-  upper_confidence_mean <- c(1000, 2053, 3125, NA, 1297, 1894, 3136, 1637)
-  lower_confidence_mean <- c(894, 1903, 2776, NA, 1136, 1772, 3122, 1605)
+  upper_confidence_mean <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  lower_confidence_mean <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  upper_confidence_median <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  lower_confidence_median <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
   group_input_table <- data.frame(
     year,
     mean,
     n,
     groups,
     lower_confidence_mean,
-    upper_confidence_mean
+    upper_confidence_mean,
+    lower_confidence_median,
+    upper_confidence_median,
+    percentile_10,
+    percentile_25,
+    percentile_75,
+    percentile_90,
+    median,
+    random
   )
   group_input_table <- group_input_table[complete.cases(group_input_table$mean), ]
   return(group_input_table)
@@ -266,7 +290,8 @@ test_that("Test grouping", {
       symbol = "diamond",
       size = 8,
       line = list(width = 2, color = "black")
-    )
+    ),
+    legendgroup = ~groups
   )
   expected_plot <- plotly::add_ribbons(
     expected_plot,
@@ -275,6 +300,7 @@ test_that("Test grouping", {
     line = list(color = "transparent"),
     marker = list(color = "transparent", line = list(width = 0)),
     showlegend = FALSE,
+    legendgroup = ~groups,
     hoverinfo = "none"
   )
   expected_plot <- layout(expected_plot,
@@ -285,7 +311,6 @@ test_that("Test grouping", {
       range = c(0, max(group_input_table[["mean"]], na.rm = TRUE) + 499)
     )
   )
-  ########################
 
   result_plot <- result_plotting_object$plot()
   expect_plotly_plots_equal(expected_plot, result_plot, debug = FALSE)
@@ -293,42 +318,7 @@ test_that("Test grouping", {
 
 
 test_that("Test median", {
-  year <- as.integer(c(
-    "2000",
-    "2001",
-    "2002",
-    "2003",
-    "2000",
-    "2001",
-    "2002",
-    "2003"
-  ))
-  mean <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
-  median <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
-  percentile_10 <- c(500, 500, 1000, NA, 500, 500, 1000, 500)
-  percentile_25 <- c(700, 1000, 2000, NA, 700, 1000, 2000, 1000)
-  percentile_75 <- c(1500, 2500, 4000, NA, 1500, 2500, 4000, 2000)
-  percentile_90 <- c(2000, 3000, 5000, NA, 2000, 3000, 5000, 3000)
-  random <- c(1, 2, 3, 4, 5, 6, 7, 8)
-  n <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
-  groups <- c("a", "a", "a", "a", "b", "b", "b", "b")
-  upper_confidence_median <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
-  lower_confidence_median <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
-  group_input_table <- data.frame(
-    year,
-    mean,
-    n,
-    groups,
-    lower_confidence_median,
-    upper_confidence_median,
-    percentile_10,
-    percentile_25,
-    percentile_75,
-    percentile_90,
-    median,
-    random
-  )
-  group_input_table <- group_input_table[complete.cases(group_input_table$mean), ]
+  group_input_table <- get_group_input_table()
 
   result_plotting_object <- soep.plots::numeric_plot(
     fields = fields,
@@ -337,70 +327,56 @@ test_that("Test median", {
     y_axis = "median",
   )
 
-  expected_plot <- ggplot(
+
+  expected_plot <- plotly::plot_ly(
     input_table,
-    aes(x = year, y = mean, group = "")
-  ) +
-    geom_path() +
-    geom_point(size = 2, shape = 3) +
-    expand_limits(y = 0) +
-    scale_x_continuous(breaks = input_table$year) +
-    scale_y_continuous(breaks = seq(0, max(input_table$median), by = 500)) +
-    plot_theme +
-    ylab("Median Income") +
-    xlab("Survey Year") +
-    geom_ribbon(
-      aes(
-        ymin = lower_confidence_median, ymax = upper_confidence_median
-      ),
-      linetype = 2, alpha = .1
+    y = ~median,
+    x = ~year,
+    type = "scatter",
+    mode = "lines+markers",
+    linetype = "solid",
+    fillcolor = "rgba(236, 236, 236, 0.5)",
+    line = list(color = default_color),
+    color = default_color,
+    marker = list(
+      symbol = "diamond",
+      size = 8,
+      line = list(width = 2, color = "black")
+    ),
+    text = "Some Text",
+    hovertemplate = "%{text}"
+  )
+
+  expected_plot <- plotly::add_ribbons(
+    expected_plot,
+    ymin = ~lower_confidence_median,
+    ymax = ~upper_confidence_median,
+    line = list(color = "transparent"),
+    marker = list(color = "transparent", line = list(width = 0)),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  )
+
+  expected_plot <- layout(expected_plot,
+    xaxis = get_xaxis_layout(fields[["year"]][["label"]]),
+    yaxis = list(
+      title = fields[["median"]][["label"]],
+      dtick = 500,
+      range = c(0, max(input_table[["median"]], na.rm = TRUE) + 499)
     )
+  )
+
 
   result_plot <- result_plotting_object$plot()
 
 
   result_plot <- result_plotting_object$plot()
-  expect_plots_equal(expected_plot, result_plot)
+  expect_plotly_plots_equal(expected_plot, result_plot)
 })
 
 
 test_that("Test boxplot grouping", {
-  year <- as.integer(c(
-    "2000",
-    "2001",
-    "2002",
-    "2003",
-    "2000",
-    "2001",
-    "2002",
-    "2003"
-  ))
-  mean <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
-  median <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
-  percentile_10 <- c(500, 500, 1000, NA, 500, 500, 1000, 500)
-  percentile_25 <- c(700, 1000, 2000, NA, 700, 1000, 2000, 1000)
-  percentile_75 <- c(1500, 2500, 4000, NA, 1500, 2500, 4000, 2000)
-  percentile_90 <- c(2000, 3000, 5000, NA, 2000, 3000, 5000, 3000)
-  random <- c(1, 2, 3, 4, 5, 6, 7, 8)
-  n <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
-  groups <- c("a", "a", "a", "a", "b", "b", "b", "b")
-  upper_confidence_median <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
-  lower_confidence_median <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
-  group_input_table <- data.frame(
-    year,
-    mean,
-    n,
-    groups,
-    lower_confidence_median,
-    upper_confidence_median,
-    percentile_10,
-    percentile_25,
-    percentile_75,
-    percentile_90,
-    median,
-    random
-  )
-  group_input_table <- group_input_table[complete.cases(group_input_table$mean), ]
+  group_input_table <- get_group_input_table()
 
   result_plotting_object <- soep.plots::numeric_plot(
     fields = fields,
@@ -411,36 +387,30 @@ test_that("Test boxplot grouping", {
   )
   result_plotting_object$set_to_boxplot()
 
-  group_input_table <- result_plotting_object$get_data()
-
-  expected_plot <-
-    ggplot(
-      group_input_table,
-      aes(
-        x = year,
-        y = median,
-        group = paste0(groups, year),
-        ymin = percentile_10,
-        ymax = percentile_90,
-        lower = percentile_25,
-        middle = median,
-        upper = percentile_75,
-        color = groups,
-        text = ""
-      )
-    ) +
-    geom_boxplot(stat = "identity") +
-    coord_cartesian() +
-    expand_limits(y = 0) +
-    scale_x_continuous(breaks = seq(2000, 2003, by = 1)) +
-    scale_y_continuous(breaks = seq(0, max(group_input_table$percentile_90), by = 500)) +
-    plot_theme +
-    ylab("Median Income") +
-    xlab("Survey Year")
+  expected_plot <- plotly::plot_ly(
+    data = group_input_table,
+    x = ~ factor(year),
+    color = ~groups,
+    type = "box",
+    q1 = ~percentile_25,
+    q3 = ~percentile_75,
+    median = ~median,
+    lowerfence = ~percentile_10,
+    upperfence = ~percentile_90
+  )
+  expected_plot <- layout(expected_plot,
+    boxmode = "group",
+    xaxis = get_xaxis_layout(fields[["year"]][["label"]]),
+    yaxis = list(
+      title = fields[["median"]][["label"]],
+      dtick = 500,
+      range = c(0, 5499)
+    )
+  )
 
   result_plotting_object$disable_confidence_interval()
   result_plot <- result_plotting_object$plot()
-  expect_plots_equal(expected_plot, result_plot)
+  expect_plotly_plots_equal(expected_plot, result_plot, debug = FALSE)
 })
 
 
@@ -487,112 +457,104 @@ test_that("Test several groups", {
     result_plotting_object$data$merged_group_name
   )
 
-  expected_plot <- ggplot(
+  expected_plot <- plotly::plot_ly(
     group_input_table,
-    aes(x = year, y = mean, group = groups, color = groups)
-  ) +
-    geom_path() +
-    geom_point(size = 2, shape = 3) +
-    coord_cartesian() +
-    expand_limits(y = 0) +
-    scale_x_continuous(
-      breaks = seq(
-        min(group_input_table$year), max(group_input_table$year),
-        by = 1
-      )
-    ) +
-    scale_y_continuous(
-      breaks = seq(0, max(group_input_table$mean), by = 500)
-    ) +
-    plot_theme +
-    ylab("Mean Income") +
-    xlab("Survey Year") +
-    geom_ribbon(
-      aes_string(
-        ymin = "lower_confidence_mean",
-        ymax = "upper_confidence_mean"
-      ),
-      linetype = 2, alpha = .1
+    y = ~mean,
+    x = ~year,
+    type = "scatter",
+    mode = "lines+markers",
+    linetype = ~groups,
+    color = ~groups,
+    line = list(color = ~groups),
+    legendgroup = ~groups,
+    marker = list(
+      symbol = "diamond",
+      size = 8,
+      line = list(width = 2, color = "black")
     )
+  )
+  expected_plot <- plotly::add_ribbons(
+    expected_plot,
+    legendgroup = ~groups,
+    ymin = ~lower_confidence_mean,
+    ymax = ~upper_confidence_mean,
+    line = list(color = "transparent"),
+    marker = list(color = "transparent", line = list(width = 0)),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  )
+  expected_plot <- layout(expected_plot,
+    xaxis = get_xaxis_layout(fields[["year"]][["label"]]),
+    yaxis = list(
+      title = fields[["mean"]][["label"]],
+      dtick = 500,
+      range = c(0, max(group_input_table[["mean"]], na.rm = TRUE) + 499)
+    )
+  )
 
   result_plot <- result_plotting_object$plot()
-  expect_plots_equal(expected_plot, result_plot)
+  expect_plotly_plots_equal(expected_plot, result_plot, debug = FALSE)
 })
 
 
 
 
 test_that("Test confidence interval", {
-  fields_ <- list(
-    "year" = list("label" = "Survey Year"),
-    "mean" = list("label" = "Mean Income")
-  )
-
-  year <- as.integer(
-    c("2000", "2001", "2002", "2003", "2000", "2001", "2002", "2003")
-  )
-  mean <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
-  n <- c(1000, 2000, 3000, 1500, 1218, 1804, 3136, 1637)
-  groups <- as.factor(c("a", "a", "a", "a", "b", "b", "b", "b"))
-  upper_confidence_mean <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
-  lower_confidence_mean <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
-  ci_input_table <- data.frame(
-    year,
-    mean,
-    n,
-    groups,
-    lower_confidence_mean,
-    upper_confidence_mean
-  )
-
   result_plotting_object <- soep.plots::numeric_plot(
-    fields = fields_,
-    data = ci_input_table,
+    fields = fields,
+    data = input_table,
     x_axis = "year",
     y_axis = "mean",
-    group_axis = c("groups")
   )
 
-  expected_plot <- ggplot(
-    ci_input_table,
-    aes(x = year, y = mean, group = groups, color = groups)
-  ) +
-    geom_path() +
-    geom_point(size = 2, shape = 3) +
-    expand_limits(y = 0) +
-    scale_x_continuous(
-      breaks = seq(min(ci_input_table$year), max(ci_input_table$year), by = 1)
-    ) +
-    scale_y_continuous(
-      breaks = seq(
-        0,
-        max(ci_input_table$mean),
-        by = 500
-      )
-    ) +
-    plot_theme +
-    ylab("Mean Income") +
-    xlab("Survey Year")
+  expected_plot <- plotly::plot_ly(
+    input_table,
+    y = ~mean,
+    x = ~year,
+    type = "scatter",
+    mode = "lines+markers",
+    linetype = "solid",
+    fillcolor = "rgba(236, 236, 236, 0.5)",
+    line = list(color = default_color),
+    color = default_color,
+    marker = list(
+      symbol = "diamond",
+      size = 8,
+      line = list(width = 2, color = "black")
+    ),
+    text = "Some Text",
+    hovertemplate = "%{text}"
+  )
 
-  expected_ci_plot <- expected_plot +
-    geom_ribbon(
-      aes_string(
-        ymin = "lower_confidence_mean",
-        ymax = "upper_confidence_mean"
-      ),
-      linetype = 2, alpha = .1
+  expected_plot <- layout(expected_plot,
+    xaxis = get_xaxis_layout(fields[["year"]][["label"]]),
+    yaxis = list(
+      title = fields[["mean"]][["label"]],
+      dtick = 500,
+      range = data_range
     )
+  )
 
-  result <- result_plotting_object$plot()
-  expect_plots_equal(expected_ci_plot, result)
+  expected_plot_ci <- plotly::add_ribbons(
+    expected_plot,
+    ymin = ~lower_confidence_mean,
+    ymax = ~upper_confidence_mean,
+    line = list(color = "transparent"),
+    marker = list(color = "transparent", line = list(width = 0)),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  )
+
+
+  result_plot <- result_plotting_object$plot()
 
   result_plotting_object$disable_confidence_interval()
   result <- result_plotting_object$plot()
-  expect_plots_equal(expected_plot, result)
+  expect_plotly_plots_equal(expected_plot, result)
 
   result_plotting_object$enable_confidence_interval()
   result <- result_plotting_object$plot()
-  expect_plots_equal(expected_ci_plot, result)
+  expect_plotly_plots_equal(expected_plot_ci, result)
 })
 
 
@@ -604,27 +566,48 @@ test_that("Year Range", {
     y_axis = "mean"
   )
   subset_table <- subset(input_table, year %in% seq(2000, 2002))
-  expected_plot <- ggplot(
+
+  expected_plot <- plotly::plot_ly(
     subset_table,
-    aes(x = year, y = mean, group = "")
-  ) +
-    geom_path() +
-    geom_point(size = 2, shape = 3) +
-    expand_limits(y = 0) +
-    scale_x_continuous(breaks = seq(2000, 2002)) +
-    scale_y_continuous(breaks = seq(0, max(subset_table$mean), by = 500)) +
-    plot_theme +
-    ylab("Mean Income") +
-    xlab("Survey Year") +
-    geom_ribbon(
-      aes(
-        ymin = lower_confidence_mean, ymax = upper_confidence_mean
-      ),
-      linetype = 2, alpha = .1
+    y = ~mean,
+    x = ~year,
+    type = "scatter",
+    mode = "lines+markers",
+    linetype = "solid",
+    fillcolor = "rgba(236, 236, 236, 0.5)",
+    line = list(color = default_color),
+    color = default_color,
+    marker = list(
+      symbol = "diamond",
+      size = 8,
+      line = list(width = 2, color = "black")
+    ),
+    text = "Some Text",
+    hovertemplate = "%{text}"
+  )
+
+  expected_plot <- plotly::add_ribbons(
+    expected_plot,
+    ymin = ~lower_confidence_mean,
+    ymax = ~upper_confidence_mean,
+    line = list(color = "transparent"),
+    marker = list(color = "transparent", line = list(width = 0)),
+    showlegend = FALSE,
+    hoverinfo = "none"
+  )
+
+
+  expected_plot <- layout(expected_plot,
+    xaxis = get_xaxis_layout(fields[["year"]][["label"]]),
+    yaxis = list(
+      title = fields[["mean"]][["label"]],
+      dtick = 500,
+      range = data_range
     )
+  )
 
   result_plotting_object$set_year_range(year_range = c(2000, 2002))
   result_plot <- result_plotting_object$plot()
 
-  expect_plots_equal(expected_plot, result_plot)
+  expect_plotly_plots_equal(expected_plot, result_plot, debug = FALSE)
 })

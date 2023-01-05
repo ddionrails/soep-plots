@@ -175,7 +175,7 @@ numeric_plot <- setRefClass(
                 median = ~median,
                 q3 = ~percentile_75,
                 lowerfence = ~percentile_10,
-                upperfence = ~percentile_90,
+                upperfence = ~percentile_90
             )
             return(plot)
         },
@@ -247,16 +247,28 @@ numeric_plot <- setRefClass(
 
 
             if (.self$confidence_interval & .self$type == "line") {
-                plot <- plotly::add_ribbons(
-                    plot,
-                    legendgroup = ~merged_group_name,
-                    ymin = as.formula(paste0("~lower_confidence_", .self$y_axis)),
-                    ymax = as.formula(paste0("~upper_confidence_", .self$y_axis)),
-                    line = list(color = "transparent"),
-                    marker = list(color = "transparent", line = list(width = 0)),
-                    showlegend = FALSE,
-                    hoverinfo = "none"
-                )
+                if ("merged_group_name" %in% names(plot_data)) {
+                    plot <- plotly::add_ribbons(
+                        plot,
+                        legendgroup = ~merged_group_name,
+                        ymin = as.formula(paste0("~lower_confidence_", .self$y_axis)),
+                        ymax = as.formula(paste0("~upper_confidence_", .self$y_axis)),
+                        line = list(color = "transparent"),
+                        marker = list(color = "transparent", line = list(width = 0)),
+                        showlegend = FALSE,
+                        hoverinfo = "none"
+                    )
+                } else {
+                    plot <- plotly::add_ribbons(
+                        plot,
+                        ymin = as.formula(paste0("~lower_confidence_", .self$y_axis)),
+                        ymax = as.formula(paste0("~upper_confidence_", .self$y_axis)),
+                        line = list(color = "transparent"),
+                        marker = list(color = "transparent", line = list(width = 0)),
+                        showlegend = FALSE,
+                        hoverinfo = "none"
+                    )
+                }
             }
 
 
@@ -269,10 +281,10 @@ numeric_plot <- setRefClass(
                 scale_breaks <- .self$get_y_scale_breaks(
                     column = plot_data[["percentile_90"]]
                 )
+                plot <- plotly::layout(plot, boxmode = "group")
             }
             if (length(.self$y_scale_limits) == 2) {
                 plot <- layout(plot,
-                    # title = "Title",
                     xaxis = get_xaxis_layout(.self$fields[[.self$x_axis]][["label"]]),
                     yaxis = list(
                         title = .self$fields[[.self$y_axis]][["label"]],
@@ -282,7 +294,6 @@ numeric_plot <- setRefClass(
                 )
             } else {
                 plot <- layout(plot,
-                    # title = "Title",
                     xaxis = get_xaxis_layout(.self$fields[[.self$x_axis]][["label"]]),
                     yaxis = list(
                         title = .self$fields[[.self$y_axis]][["label"]],
