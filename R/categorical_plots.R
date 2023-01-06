@@ -14,6 +14,30 @@ tooltip_template <- paste0(
 )
 
 
+
+
+get_xaxis_layout <- function(title) {
+    return(list(
+        title = title,
+        showline = TRUE,
+        showgrid = FALSE,
+        showticklabels = TRUE,
+        linecolor = "rgb(204, 204, 204)",
+        linewidth = 2,
+        autotick = FALSE,
+        ticks = "outside",
+        tickcolor = "rgb(204, 204, 204)",
+        tickwidth = 2,
+        ticklen = 5,
+        tickfont = list(
+            family = "Arial",
+            size = 12,
+            color = "rgb(82, 82, 82)"
+        )
+    ))
+}
+
+
 #' @export  categorical_plot
 #' @exportClass CategoricalPlot
 #' @title CategoricalPlot
@@ -30,6 +54,34 @@ categorical_plot <- setRefClass(
     "CategoricalPlot",
     contains = "GeneralPlot",
     methods = list(
+        get_y_scale_breaks = function(column) {
+            if (length(.self$y_scale_limits) == 2) {
+                return(y_scale_breaks(column, limits = .self$y_scale_limits))
+            }
+            return(y_scale_breaks(column))
+        },
+        line_tooltip = function() {
+            return(paste(
+                c(
+                    "~",
+                    "paste(",
+                    paste(
+                        "'N: '", "n", "'<br>'",
+                        "'Obere Konfidenz: '",
+                        "upper_confidence * 100", "'%'",
+                        "'<br>'",
+                        "'Untere Konfidenz: '",
+                        "lower_confidence *100", "'%'",
+                        "'<br>'",
+                        "'<extra></extra>'",
+                        sep = ","
+                    ),
+                    ", sep='')"
+                ),
+                sep = "",
+                collapse = ""
+            ))
+        },
         add_default_layers = function(plot) {
             plot <- plot +
                 labs(fill = "") +
@@ -96,49 +148,56 @@ categorical_plot <- setRefClass(
             .self$row_selector <- Reduce("&", row_selectors)
         },
         initialize_bar_plot = function(plot_data) {
-            output_plot <- ggplot(
+            plot <- plotly::plot_ly(
                 plot_data,
-                aes(
-                    x = !!sym(.self$x_axis),
-                    y = !!sym(.self$y_axis),
-                    fill = merged_group_name,
-                    text = sprintf(
-                        tooltip_template,
-                        merged_group_name,
-                        !!sym(.self$x_axis),
-                        !!sym(.self$y_axis) * 100,
-                        n,
-                        upper_confidence * 100,
-                        lower_confidence * 100
-                    )
+                x = as.formula(paste0("~factor(", .self$x_axis, ")")),
+                y = as.formula(paste0("~", .self$y_axis)),
+                type = "bar",
+                legendgroup = ~merged_group_name,
+                color = ~merged_group_name,
+                text = as.formula(.self$line_tooltip()),
+                hovertemplate = paste(
+                    "<b>%{data.name}</b>",
+                    "Year: %{x}",
+                    paste(
+                        .self$fields[[.self$y_axis]][["label"]], ": %{y:.0%}",
+                        sep = ""
+                    ),
+                    "%{text}",
+                    sep = "<br>"
                 )
-            ) +
-                geom_bar(position = "fill", stat = "identity", na.rm = TRUE)
-            return(output_plot)
+            )
+            plot <- plotly::layout(plot, barmode = "stack")
+            return(plot)
         },
         initialize_line_plot = function(plot_data) {
-            output_plot <- ggplot(
+            plot <- plotly::plot_ly(
                 plot_data,
-                aes(
-                    x = !!sym(.self$x_axis),
-                    y = !!sym(.self$y_axis),
-                    group = merged_group_name,
-                    color = merged_group_name,
-                    text = sprintf(
-                        tooltip_template,
-                        merged_group_name,
-                        !!sym(.self$x_axis),
-                        !!sym(.self$y_axis) * 100,
-                        n,
-                        upper_confidence * 100,
-                        lower_confidence * 100
-                    )
+                x = as.formula(paste0("~factor(", .self$x_axis, ")")),
+                y = as.formula(paste0("~", .self$y_axis)),
+                type = "scatter",
+                mode = "lines+markers",
+                linetype = ~merged_group_name,
+                legendgroup = ~merged_group_name,
+                color = ~merged_group_name,
+                marker = list(
+                    symbol = "diamond",
+                    size = 8,
+                    line = list(width = 2, color = "black")
+                ),
+                text = as.formula(.self$line_tooltip()),
+                hovertemplate = paste(
+                    "<b>%{data.name}</b>",
+                    "Year: %{x}",
+                    paste(
+                        .self$fields[[.self$y_axis]][["label"]], ": %{y:.0%}",
+                        sep = ""
+                    ),
+                    "%{text}",
+                    sep = "<br>"
                 )
-            ) +
-                geom_path(na.rm = TRUE) +
-                geom_point(size = 2, shape = 3)
-
-            return(output_plot)
+            )
+            return(plot)
         },
         plot = function(...) {
             "Prepare ggplot output from data and config."
@@ -149,15 +208,27 @@ categorical_plot <- setRefClass(
                 plot <- .self$initialize_bar_plot(plot_data)
             }
 
-            plot <- add_default_layers(plot)
+
+            plot <- plotly::layout(plot,
+                xaxis = get_xaxis_layout(.self$fields[[.self$x_axis]][["label"]]),
+                yaxis = list(
+                    title = .self$fields[[.self$y_axis]][["label"]],
+                    tickformat = ",.0%", range(0, 100)
+                )
+            )
+
 
             if (.self$confidence_interval && .self$type == "line") {
-                plot <- plot +
-                    geom_ribbon(
-                        aes(ymin = lower_confidence, ymax = upper_confidence),
-                        linetype = 2,
-                        alpha = .1
-                    )
+                plot <- plotly::add_ribbons(
+                    plot,
+                    legendgroup = ~merged_group_name,
+                    ymin = ~lower_confidence,
+                    ymax = ~upper_confidence,
+                    line = list(color = "transparent"),
+                    marker = list(color = "transparent", line = list(width = 0)),
+                    showlegend = FALSE,
+                    hoverinfo = "none"
+                )
             }
             return(plot)
         }
