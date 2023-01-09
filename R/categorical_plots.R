@@ -1,5 +1,5 @@
 #' @include plots.R
-#' @import ggplot2
+#' @import plotly
 
 tooltip_template <- paste0(
     c(
@@ -81,35 +81,6 @@ categorical_plot <- setRefClass(
                 sep = "",
                 collapse = ""
             ))
-        },
-        add_default_layers = function(plot) {
-            plot <- plot +
-                labs(fill = "") +
-                scale_x_continuous(
-                    breaks = seq(
-                        .self$year_selection[1],
-                        .self$year_selection[2],
-                        by = 1
-                    )
-                ) +
-                scale_y_continuous(
-                    breaks = seq(0, 1, by = .1),
-                    labels = sapply(
-                        c(seq(0, 100, 10)),
-                        function(x) paste(x, "%", sep = "")
-                    )
-                ) +
-                theme(
-                    axis.text = element_text(size = 12),
-                    axis.text.x = element_text(size = 11, angle = -50),
-                    axis.title = element_text(size = 14, face = "bold"),
-                    legend.text = element_text(size = 12),
-                    legend.title = element_blank()
-                ) +
-                xlab(.self$fields[[.self$x_axis]][["label"]]) +
-                ylab(.self$fields[[.self$y_axis]][["label"]])
-
-            return(plot)
         },
         set_to_bar = function(...) {
             "Set type of plot returned to a barchart"
