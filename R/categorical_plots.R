@@ -68,10 +68,10 @@ categorical_plot <- setRefClass(
                     paste(
                         "'N: '", "n", "'<br>'",
                         "'Obere Konfidenz: '",
-                        "upper_confidence * 100", "'%'",
+                        "round(upper_confidence * 100, 2)", "'%'",
                         "'<br>'",
                         "'Untere Konfidenz: '",
-                        "lower_confidence *100", "'%'",
+                        "round(lower_confidence *100, 2)", "'%'",
                         "'<br>'",
                         "'<extra></extra>'",
                         sep = ","
