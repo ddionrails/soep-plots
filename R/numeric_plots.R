@@ -17,16 +17,17 @@ y_scale_breaks <- function(column, limits = vector()) {
     if (maximum >= 1000) {
         maximum <- maximum + 499
     }
-    if (maximum < 1000) {
+    if (maximum < 1000 && maximum > 100) {
         interval <- 50
         maximum <- maximum + 49
     }
-    if (maximum < 100) {
+    if (maximum < 100 && maximum > 10) {
         interval <- 5
         maximum <- maximum + 4
     }
     if (maximum <= 10) {
         interval <- 1
+        maximum <- 10
     }
     return(c(
         minimum,
