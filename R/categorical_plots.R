@@ -14,6 +14,40 @@ tooltip_template <- paste0(
 )
 
 
+#' Helper function to set y scale depending on values to display
+#' @param column dataframe column with y scale values
+#' @noRd
+y_scale_breaks <- function(column, limits = vector()) {
+    column <- column[is.numeric(column)]
+    if (length(limits) == 2) {
+        minimum <- limits[1]
+        maximum <- limits[2]
+    } else {
+        maximum <- max(column, na.rm = TRUE)
+        minimum <- 0
+    }
+    interval <- 500
+    if (maximum >= 1000) {
+        maximum <- maximum + 499
+    }
+    if (maximum < 1000) {
+        interval <- 50
+        maximum <- maximum + 49
+    }
+    if (maximum < 100) {
+        interval <- 5
+        maximum <- maximum + 4
+    }
+    if (maximum <= 10) {
+        interval <- 1
+    }
+    return(c(
+        minimum,
+        maximum,
+        interval
+    ))
+}
+
 
 
 get_xaxis_layout <- function(title) {
