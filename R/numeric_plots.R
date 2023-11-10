@@ -137,6 +137,10 @@ numeric_plot <- setRefClass(
             "Set y scale upper and lower limit."
             if (length(year_range) == 2) {
                 y_scale_limits <<- sort(as.numeric(y_scale_limits))
+            } else {
+                y_scale_limits <<- y_scale_breaks(
+                    0, max(.self$data[[.self$y_axis]], na.rm = TRUE)
+                )
             }
         },
         initialize_grouped_plot = function(plot_data) {
