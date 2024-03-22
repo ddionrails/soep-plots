@@ -17,9 +17,9 @@ create_input_table <- function() {
   year <- as.integer(c("2000", "2001", "2002", "2003"))
   mean <- c(1000, 2000, 3000, 1500)
   n <- c(5000, 5400, 4500, 5000)
-  upper_confidence_mean <- c(1100, 2100, 3200, 1600)
-  upper_confidence_median <- c(1100, 2100, 3200, 1600)
-  lower_confidence_mean <- c(900, 1800, 2900, 1000)
+  mean_upper_confidence <- c(1100, 2100, 3200, 1600)
+  median_upper_confidence <- c(1100, 2100, 3200, 1600)
+  mean_lower_confidence <- c(900, 1800, 2900, 1000)
   lower_confidence_median <- c(900, 1800, 2900, 1000)
   percentile_10 <- c(500, 500, 1000, 500)
   percentile_25 <- c(700, 1000, 2000, 1000)
@@ -30,10 +30,10 @@ create_input_table <- function() {
     year,
     mean,
     n,
-    lower_confidence_mean,
+    mean_lower_confidence,
     lower_confidence_median,
-    upper_confidence_mean,
-    upper_confidence_median,
+    mean_upper_confidence,
+    median_upper_confidence,
     percentile_10,
     percentile_25,
     percentile_75,
@@ -115,8 +115,8 @@ test_that("NumericPlot plotting.", {
 
   expected_plot <- plotly::add_ribbons(
     expected_plot,
-    ymin = ~lower_confidence_mean,
-    ymax = ~upper_confidence_mean,
+    ymin = ~mean_lower_confidence,
+    ymax = ~mean_upper_confidence,
     line = list(color = "transparent"),
     marker = list(color = "transparent", line = list(width = 0)),
     showlegend = FALSE,
@@ -201,8 +201,8 @@ test_that("Test set_y_scale_limit.", {
 
   expected_plot <- plotly::add_ribbons(
     expected_plot,
-    ymin = ~lower_confidence_mean,
-    ymax = ~upper_confidence_mean,
+    ymin = ~mean_lower_confidence,
+    ymax = ~mean_upper_confidence,
     line = list(color = "transparent"),
     marker = list(color = "transparent", line = list(width = 0)),
     showlegend = FALSE,
@@ -241,19 +241,19 @@ get_group_input_table <- function() {
   random <- c(1, 2, 3, 4, 5, 6, 7, 8)
   n <- c(1000, 2000, 3000, NA, 1218, 1804, 3136, 1637)
   groups <- c("a", "a", "a", "a", "b", "b", "b", "b")
-  upper_confidence_mean <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
-  lower_confidence_mean <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
-  upper_confidence_median <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  mean_upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  mean_lower_confidence <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  median_upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
   lower_confidence_median <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
   group_input_table <- data.frame(
     year,
     mean,
     n,
     groups,
-    lower_confidence_mean,
-    upper_confidence_mean,
+    mean_lower_confidence,
+    mean_upper_confidence,
     lower_confidence_median,
-    upper_confidence_median,
+    median_upper_confidence,
     percentile_10,
     percentile_25,
     percentile_75,
@@ -295,8 +295,8 @@ test_that("Test grouping", {
   )
   expected_plot <- plotly::add_ribbons(
     expected_plot,
-    ymin = ~lower_confidence_mean,
-    ymax = ~upper_confidence_mean,
+    ymin = ~mean_lower_confidence,
+    ymax = ~mean_upper_confidence,
     line = list(color = "transparent"),
     marker = list(color = "transparent", line = list(width = 0)),
     showlegend = FALSE,
@@ -350,7 +350,7 @@ test_that("Test median", {
   expected_plot <- plotly::add_ribbons(
     expected_plot,
     ymin = ~lower_confidence_median,
-    ymax = ~upper_confidence_median,
+    ymax = ~median_upper_confidence,
     line = list(color = "transparent"),
     marker = list(color = "transparent", line = list(width = 0)),
     showlegend = FALSE,
@@ -430,16 +430,16 @@ test_that("Test several groups", {
   first_dimension <- c("a", "a", "a", "a", "b", "b", "b", "b")
   second_dimension <- c("ba", "ba", "ba", "ba", "ba", "ab", "ab", "ab")
   combined_dimension <- c("a ba", "a ba", "a ba", "a ba", "b ba", "b ab", "b ab", "b ab")
-  upper_confidence_mean <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
-  lower_confidence_mean <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
+  mean_upper_confidence <- c(1000, 2053, 3125, 1575, 1297, 1894, 3136, 1637)
+  mean_lower_confidence <- c(894, 1903, 2776, 1400, 1136, 1772, 3122, 1605)
   group_input_table <- data.frame(
     year,
     mean,
     n,
     first_dimension,
     second_dimension,
-    lower_confidence_mean,
-    upper_confidence_mean
+    mean_lower_confidence,
+    mean_upper_confidence
   )
 
   result_plotting_object <- soep.plots::numeric_plot(
@@ -476,8 +476,8 @@ test_that("Test several groups", {
   expected_plot <- plotly::add_ribbons(
     expected_plot,
     legendgroup = ~groups,
-    ymin = ~lower_confidence_mean,
-    ymax = ~upper_confidence_mean,
+    ymin = ~mean_lower_confidence,
+    ymax = ~mean_upper_confidence,
     line = list(color = "transparent"),
     marker = list(color = "transparent", line = list(width = 0)),
     showlegend = FALSE,
@@ -537,8 +537,8 @@ test_that("Test confidence interval", {
 
   expected_plot_ci <- plotly::add_ribbons(
     expected_plot,
-    ymin = ~lower_confidence_mean,
-    ymax = ~upper_confidence_mean,
+    ymin = ~mean_lower_confidence,
+    ymax = ~mean_upper_confidence,
     line = list(color = "transparent"),
     marker = list(color = "transparent", line = list(width = 0)),
     showlegend = FALSE,
@@ -588,8 +588,8 @@ test_that("Year Range", {
 
   expected_plot <- plotly::add_ribbons(
     expected_plot,
-    ymin = ~lower_confidence_mean,
-    ymax = ~upper_confidence_mean,
+    ymin = ~mean_lower_confidence,
+    ymax = ~mean_upper_confidence,
     line = list(color = "transparent"),
     marker = list(color = "transparent", line = list(width = 0)),
     showlegend = FALSE,

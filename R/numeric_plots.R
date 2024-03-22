@@ -76,10 +76,10 @@ line_tooltip <- paste(
         paste(
             "'N: '", "n", "'<br>'",
             "'Obere Konfidenz: '",
-            "upper_confidence_mean",
+            "mean_upper_confidence",
             "'<br>'",
             "'Untere Konfidenz: '",
-            "lower_confidence_mean",
+            "mean_lower_confidence",
             "'<br>'",
             "'<extra></extra>'",
             sep = ","
