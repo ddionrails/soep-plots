@@ -256,8 +256,8 @@ numeric_plot <- setRefClass(
                     plot <- plotly::add_ribbons(
                         plot,
                         legendgroup = ~merged_group_name,
-                        ymin = as.formula(paste0("~lower_confidence_", .self$y_axis)),
-                        ymax = as.formula(paste0("~upper_confidence_", .self$y_axis)),
+                        ymin = as.formula(paste0("~", .self$y_axis, "_lower_confidence")),
+                        ymax = as.formula(paste0("~", .self$y_axis, "_upper_confidence")),
                         line = list(color = "transparent"),
                         marker = list(color = "transparent", line = list(width = 0)),
                         showlegend = FALSE,
@@ -266,8 +266,8 @@ numeric_plot <- setRefClass(
                 } else {
                     plot <- plotly::add_ribbons(
                         plot,
-                        ymin = as.formula(paste0("~lower_confidence_", .self$y_axis)),
-                        ymax = as.formula(paste0("~upper_confidence_", .self$y_axis)),
+                        ymin = as.formula(paste0("~", .self$y_axis, "_lower_confidence")),
+                        ymax = as.formula(paste0("~", .self$y_axis, "_upper_confidence")),
                         line = list(color = "transparent"),
                         marker = list(color = "transparent", line = list(width = 0)),
                         showlegend = FALSE,
